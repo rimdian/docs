@@ -1,24 +1,43 @@
 ---
 title: Introduction
-description: 'Welcome to the home of your new documentation'
+description: 'Welcome to Rimdian'
+icon: hand-wave
 ---
 
 <img
-  className="block dark:hidden"
-  src="/images/hero-light.svg"
-  alt="Hero Light"
-/>
-<img
-  className="hidden dark:block"
-  src="/images/hero-dark.svg"
-  alt="Hero Dark"
+  style={{ borderRadius: '0.5rem' }}
+  src="/images/dashboard.jpg"
+  alt="Rimdian dashboard"
 />
 
-## Setting up
+## What is Rimdian?
 
-The first step to world-class documentation is setting up your editing environments.
+Rimdian is a digital marketing platform to collect, unify, analyze & activate your customer data in real-time.
 
-<CardGroup cols={2}>
+It is composed of a [core platform](/architecture) that orchestrates all the [data processing lifecycle](data-lifecycle), and apps that can hook into it, in order to import, enrich & activate data.
+
+We can describe it as a "Composable Customer Data Platform".
+
+## For marketers
+
+With the growing complexity of customer journeys, tracking issues & ever changing regulations, it becomes really difficult to get reliable insights from your data.
+
+Rimdian will automate all of this for you:
+
+- [state-of-the-art tracking](/receipes/cross-device-reconciliation): cross-device / cross-channel / cross-domain (web-to-store...)
+- [user-identity resolution](/user-identity-resolution)
+- [user segmentation](/user-segmentation)
+- [multi-touch attribution](/multi-touch-attribution) for your marketing campaigns
+- [marketing automation](/marketing-automation)
+
+
+## For data scientists
+
+With Rimdian, you won't loose anymore time building data pipelines, ETL & reverse ETL jobs... thanks to the SingleStoreDB engine, the data is ready to be queried by your BI tools with SQL in live.
+
+Want to take it to the next level? [create your own app](/apps-development/introduction) to customize the platform to your needs.
+
+{/* <CardGroup cols={2}>
   <Card
     title="Edit Your Docs"
     icon="pen-to-square"
@@ -68,4 +87,4 @@ Update your docs to your brand and add valuable content for the best user conver
   >
     Check out our showcase of our favorite documentation
   </Card>
-</CardGroup>
+</CardGroup> */}

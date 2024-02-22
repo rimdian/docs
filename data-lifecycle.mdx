@@ -1,0 +1,97 @@
+---
+title: 'Data lifecycle'
+description: 'Overview of the data processing pipeline'
+icon: arrows-rotate
+iconType: duotone
+---
+
+## Specifications
+
+Rimdian has been designed to be as much resilient and scalable as possible, and provides the following guarantees:
+
+- **Data durability**: Thanks to the `Queue`, the data will be retried if a failure occurs.
+- **Data consistency**: A database lock is acquired **at the user-level** for each data point (`session`, `pageview`, `order`...), ensuring that the data is not duplicated in case of concurrent processing.
+- **Idempotency**: All data points can be processed multiple times, out-of-order, without any side effect.
+- **Scalability**: The data `Collector`, `Queue`, `API Servers` & `Database nodes` can be scaled horizontally to handle more load.
+- **Stability**: The `Queue` will automatically slow down the data ingestion if the `API Servers` are not able to keep up with the load.
+
+## Data pipeline
+
+There is **only one entry point** to the data pipeline: the `Collector`.
+
+All data sources (your website, apps, API...) are sending data to the `Collector`, that pushes it to the `Queue`, that dispatches it to the `API Servers` for processing.
+
+The `API Server` does the following **for every data point**:
+
+1. **Persist the raw data** in the `Database`.
+2. **Enrich or reject the data** by calling `before_validation` hooks (IP-to-location, IP filtering...).
+3. **Validate the data** against schemas (core + apps).
+4. **Acquire a lock** on the data at the user-level, to ensure consistency.
+5. **Reconciliate the user identity** to maintain a single view of the user.
+6. **Reattribute conversions** to the right marketing campaigns for `order` events.
+7. **Recompute user segments** to keep them up-to-date.
+8. **Trigger workflows** who "subscribe" to the data point (e.g. sending an email when a new `order` is created).
+9. **Forward the data** by calling the `on_suceess` hooks.
+
+## Data consistency
+
+Tracking web events is challenging. It's very common that web browsers send the same events multiple times, or out-of-order, or that the network is down.
+
+Users also often close the browser before events are sent.
+
+To handle these cases, Rimdian has been designed to be **idempotent** & **consistent**, which implies that the data points sent to the `Collector` should contain all the contextual information needed to heal the dataset.
+
+In the following example of a web `pageview` hit sent to the `Collector` by the JavaScript tracker, the `user`, `device` and `session` objects are attached to the `pageview`, to make sure we can heal the dataset if they went missing.
+
+```json
+{
+  "id": "2d70d3d7-cb38-4fe9-bd88-e18813c09edd",
+  "workspace_id": "acme_test",
+  "items": [
+    {
+      "kind": "pageview",
+      "pageview": {
+        "external_id": "928a9a39-cf9c-4a10-908f-5f8c62539fda",
+        "created_at": "2024-02-22T09:12:02.361Z",
+        "title": "Page title | Your Website",
+        "page_id": "https://www.your-website.com/landing-page",
+        "duration": 5,
+        "updated_at": "2024-02-22T09:12:11.282Z"
+      },
+      "user": {
+        "external_id": "d1bf792a-8fb3-4082-a546-e8c7f57a92f6",
+        "is_authenticated": false,
+        "created_at": "2024-01-11T14:47:51.786Z",
+        "last_interaction_at": "2024-02-22T09:12:02.361Z",
+        "consent_all": true
+      },
+      "session": {
+        "external_id": "72957bf5-21c7-459b-ba0a-50e7afae5ca2",
+        "created_at": "2024-02-22T09:12:02.361Z",
+        "device_external_id": "1aaac360-10f1-46c4-b3dd-ed9ebde45ee4",
+        "landing_page": "https://www.your-website.com/landing-page",
+        "timezone": "Europe/Paris",
+        "utm_source": "direct",
+        "utm_medium": "none",
+        "duration": 5,
+        "pageviews_count": 1,
+        "interactions_count": 1,
+        "updated_at": "2024-02-22T09:12:11.282Z"
+      },
+      "device": {
+        "external_id": "1aaac360-10f1-46c4-b3dd-ed9ebde45ee4",
+        "created_at": "2024-01-11T14:47:51.786Z",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:122.0) Gecko/20100101 Firefox/122.0",
+        "updated_at": "2024-02-22T09:12:11.909Z",
+        "language": "fr-FR",
+        "ad_blocker": false,
+        "resolution": "1728x1117"
+      }
+    },
+    ... // Other items
+
+  ],
+  "context": { "data_sent_at": "2024-02-22T09:12:11.910Z" },
+  "created_at": "2024-02-22T09:12:11.910Z"
+}
+```

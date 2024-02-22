@@ -1,0 +1,31 @@
+---
+title: 'User-identity resolution'
+description: 'Overview of the Rimdian user-identity resolution algorithm'
+iconType: duotone
+icon: object-intersect
+---
+
+Nowadays it's very common to see 60% of the web traffic comes from mobile phones while 60% of orders are placed from desktops. This is because users are using multiple devices to interact with the same website. This makes it difficult to understand the user journey & measure the performances of marketing campaigns accurately.
+
+User-identity resolution is the process of identifying the same user across multiple devices. This is done by matching the user's data from different devices and creating a single user profile.
+
+There are 2 ways to do that:
+- Probabilistically by matching the user IP address etc...
+- Deterministically by using unique identifiers like email, phone number, user ID etc...
+
+**Rimdian only does deterministic user-identity resolution using 1st party customer data in accordance with GDPR and CCPA.**
+
+## How it works
+
+In Rimdian, a user is defined by an ID + an `is_authenticated` boolean that tells if the user ID is authenticated or not.
+
+When an anonymous user is visiting your website for the first time, the JavaScript tracker will automatically generate a unique random user ID and store it in a cookie with `is_authenticated: false`. This user ID is then used to track the user's journey across the website.
+
+When the same user logs in, we can now associate its anonymous ID with the authenticated one. The JavaScript tracker takes care of that by sending a `user_alias` event.
+
+### Matching other properties
+
+In addition to the user ID, you can also define other properties like email, phone number, etc... as matching keys.
+
+This is very useful if your users are signing up to your newsletter but not creating accounts yet. In such case you can attach their email to their anonymous user ID until they create an account.
+

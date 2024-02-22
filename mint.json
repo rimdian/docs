@@ -40,7 +40,17 @@
   "navigation": [
     {
       "group": "Get Started",
-      "pages": ["introduction", "quickstart", "development"]
+      "pages": [
+        "introduction",
+        "architecture",
+        "data-lifecycle",
+        "integration",
+        "user-identity-resolution",
+        "multi-touch-attribution",
+        "user-segmentation",
+        "marketing-automation",
+        "apps"
+      ]
     },
     {
       "group": "Essentials",
