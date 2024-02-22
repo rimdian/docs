@@ -2,11 +2,187 @@
 title: 'Multi-touch attribution'
 description: 'Overview of the multi-touch attribution algorithms'
 iconType: duotone
-icon: dollar-sign
+icon: arrow-pointer
 ---
 
-## Title 2
+## What is marketing attribution
 
-Learn how to update your docs locally and and deploy them to the public.
+<Tip>"Attribution" is the art of measuring the impact of **all the marketing efforts** done to convert an anonymous visitor into a customer.</Tip>
 
-### Title 3
+The customer journey is made of many web sessions, coming from different channels (Google Ads, Email…), over many devices (phone, desktop…) and sometimes visits from physical stores.
+
+"Multi-touch attribution" aims to record all the steps made by the customer, and attribute the impact of each step on the revenue.
+
+The challenge is big, as we know nothing about anonymous visitors, and the customer journey is split between:
+
+- **Cross-channel** (i.e: Google Ads → Facebook retargeting → TV spot…)
+- **Cross-device** (i.e: product discovery on mobile phone → conversion on desktop)
+- **Cross-domain** (i.e: product discovery in physical store → conversion online)
+
+## Why
+
+Multi-touch attribution is mandatory to:
+
+- Know if a marketing campaign or channel is **cost-efficient**.
+- Understand **the role played by your marketing channels** (product discovery, generic information, assisting conversions, closing conversions…).
+- Understand **the links between marketing channels** or domains (i.e: Facebook retargeting depends on qualified traffic coming from Google Ads).
+- Understand the customers behaviour to **properly time marketing campaigns** (i.e: if your customers need 3 months to convert, you have to start your Christmas marketing campaigns in October).
+
+## How
+
+Measuring website traffic is done by using a [Javascript SDK](/javascript-sdk) with a combination of 1st-party cookies to avoid counting people twice.
+
+However, recent version of web browsers now implement restrictions over the lifespan of cookies, Apple Safari cookies are now limited to 7 days.
+
+The challenge is to stitch data with cross-channels, cross-device and cross-domain limitations… by respecting the [GDPR](https://gdpr.eu/), [CCPA](https://oag.ca.gov/privacy/ccpa) and other privacy laws.
+
+### Cross-channel
+
+A "channel" here represents **a source of online traffic** (Google Ads, a referrer, Facebook Ads…).
+
+When a visitor lands on your website from Google Ads, the Javascript code stores a unique ID in a cookie to remember him when he will come back from another source of traffic. If one day he becomes a customer, we will be able to compute the impact of all the marketing efforts that led to this conversion. 
+
+Nothing new here.
+
+### Cross-device
+
+For anonymous visitors we just can't legally stitch "identities" together, as we need their consent to do so, and apply non-deterministic (=non-reliable) methods like IP address matching.
+
+But what is relevant to us, is to attribute conversions (=an order), and a conversion means : the user is authenticated.
+
+We will stitch devices together thanks to the `user ID` of the **authenticated customer**, after the conversion.
+
+Let's take the following customer journey as an example:
+
+1. The first session is made on a mobile phone, by an **anonymous** user. The Javascript code sets a random cookie ID `A`.
+2. The same **anonymous** user returns on your website with a laptop & the Javascript code sets a random cookie ID `B`.
+3. At this point, Rimdian will see 2 anonymous users & 2 devices, and can't tell that they are the same person.
+4. Still on his laptop, our anonymous user is now going through checkout and buys a product. During this process, he will **authenticate** himself and receive a user ID `customer_1` coming from your customers database.
+5. The Javascript code will detect that this laptop user has now been authenticated, and merge the data (=web session, pageviews…) from `B` into `customer_1`.
+6. At this point, Rimdian still sees 2 users and 2 devices: an anonymous user on a mobile phone & a customer on a laptop.
+7. Now, all the communications that you will send to your `customer_1` (i.e: order status, newsletters…) should contain links that point to your website, containing the user ID `customer_1` in parameters. Example: `https://www.your-website.com/?user_id=customer_1`
+8. When your customer will click on this links on his mobile phone, it will open your website and the Javascript code will do this :
+- retrieve the anonymous cookie ID `A` from a previous visit
+- detect in the URL parameters the user ID `customer_1`
+- merge the data from `A` into `customer_1`
+9. This process of merging data & user identities is called [user-identity resolution](/user-identity-resolution).
+
+As you can see, the cross-device reconciliation takes time & is not guaranteed. 
+
+However, we don't need to reconcile every user; with a significant portion of reconciled devices we can learn enough on our customers to improve our marketing efforts.
+
+<Tip>The goal is not to track people, it's to **understand** what's going on, **learn** and **communicate better**.</Tip>
+
+### Cross-domain
+
+Like cross-device reconciliation, we won't need & be able to reconcile every customer, but we will learn a lot.
+
+Cross-domain could happen between 2 online properties (websites, apps…), or between offline (retail) and online properties.
+
+Between 2 websites, it's easy, the Javascript code can be configured to append user ID values to the links. When a user goes from your store `https://www.your-website.com` to the blog `https://blog.your-website.com/?user_id=A` by clicking on a link, the blog will retrieve the user ID from the URL.
+
+The real challenge is to track a customer, or a future customer **offline** (i.e: in a physical store).
+
+In a store, the staff can ask the **email address** or **loyalty card** of a customer. As both of them should be recorded in the customers database, we can then append an "in-store" visit to the customer journey.
+
+The key of a successful offline tracking strategy is to give a reward: a loyalty card.
+
+For people who don't have a loyalty card yet, we can send them a coupon by email. The email address will be the reconciliation key, if one day they become customers.
+
+<Tip>
+All those strategies, and the processing of the collected data should be declared in your "Privacy Policies" to remain legal.
+</Tip>
+
+## Algorithms
+
+Multi-touch attribution is commonly used with "attribution models".
+
+An attribution model is a way to attribute more or less credits, to every touch-points (=sessions) that contributed to a conversion.
+
+A "session" is a "bucket" of interactions (pageviews…) that happened during a visit. 
+
+If you can track a customer in a "physical store" with his loyalty card, you can register a session for that visit of the "physical store".
+
+Common attribution models are :
+
+- Last-click : attributes 100% of the revenue to the last session.
+- First-click : attributes 100% of the revenue to the first session.
+- Time-decay : attributes more revenue to sessions closest (in time) to the conversion.
+- U-shape : attributes 40% to the first session, 20% in the middle and 40% to the last session.
+- Linear : equally splits the revenue between the sessions.
+- AI data-driven magic black-box : you don't control what's going on and trust the numbers.
+
+Let's face the truth, the least-dangerous model is the linear, and AI data-driven models end up with numbers close to the linear.
+
+### Why are models dangerous ?
+
+Because it's a team game. 
+
+No one clicks on a web link for fun and loosing time. We click on a link because we think it's the best information we can get at some point, during our journey.
+
+**Therefore there are no channels that deserve more credits than others.**
+
+If you apply an attribution model, find out that a marketing channel is not cost-effective and cut its budget, you might destroy your sales.
+
+Why?
+
+<Tip>The role of a marketing channel is not to convert, but to drive qualified traffic.</Tip>
+
+A conversion occurs when the buying process of a visitor is mature, after many interactions and a certain period of time.
+
+Many channels can't convert right away, but are mandatory to fuel your customers journey.
+
+### Rimdian has a solution
+
+Rimdian applies 2 algorithms for multi-touch attribution :
+
+1. Linear: for people who still want to work the old-way
+2. Contributive: for avoiding mistakes
+
+The "contributive" approach attributes 100% of the revenue to every sessions that contributed to a conversion. The idea is to measure the quantity of the "fuel" that the channels are driving.
+
+This way, you know that if you cut a specific channel, you can expect to loose all that revenue.
+
+Why ?
+
+**Because all the customers who needed this specific channel during their journey, won't find it anymore, and all those customer journeys will be cut.**
+
+### When is attribution computed?
+
+To remain up-to-date, the multi-touch attribution algorithm is triggered every time there is:
+
+- A [reconciliation of user profiles](/user-identity-resolution)
+- A new `order`
+- A cancelled `order`
+- An `order` subtotal has been updated
+- An update of the channels mapping
+
+**Because any of those events can happen at any time, the performances of your channels are always evolving.**
+
+Example: if the average "time to conversion" of a customer journey is 30 days, you won't know the real performance of a marketing campaign after 30 days (+ some more time to let the cross-device reconciliation do its work).
+
+<Tip>
+Google Analytics database never rewrites the past. Therefore, it can't do cross-device & cross-domain reconciliation. And will NEVER be able to produce correct statistics about your marketing performance.
+</Tip>
+
+### Channels mapping
+
+To properly track the performance of your traffic channels and marketing campaigns, it is important to declare which source of traffic belongs to which channels.
+
+A channel is composed of a collection of sources & mediums (utm_source / utm_medium) like this:
+
+**TODO: screenshot here**
+
+It's important to regularly update the mapping to integrate new significant sources of traffic, in order to track their performance.
+
+### Postviews
+
+A `postview` event is a display banner impression that has not been clicked, but happened on a conversion path of a customer.
+
+In order to measure, as much as we can, the impact of the display marketing channels on your conversions, the multi-touch attribution algorithm of Rimdian will also attribute credits to postviews.
+
+However, if 20 postviews (= not-clicked display banners) preceded a conversion, the algorithm will only give credits to the first postview for a given conversion. Otherwise, it will exaggerate the influence of display and dilute sessions.
+
+Advertisers using Google Campaign Manager 360 can import their "postviews" with the corresponding app.
+
+Postviews tracking done by Google Campaign Manager 360, uses third-party cookies, therefore it will only work on Chrome web browsers.

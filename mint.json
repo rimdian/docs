@@ -32,8 +32,8 @@
   },
   "tabs": [
     {
-      "name": "API Reference",
-      "url": "api-reference"
+      "name": "Data collector API",
+      "url": "data-collector-api"
     }
   ],
   "anchors": [],
@@ -53,6 +53,10 @@
       ]
     },
     {
+      "group": "Librairies",
+      "pages": ["javascript-sdk"]
+    },
+    {
       "group": "Essentials",
       "pages": [
         "essentials/markdown",
@@ -64,15 +68,15 @@
       ]
     },
     {
-      "group": "API Documentation",
-      "pages": ["api-reference/introduction"]
+      "group": "Data collector API",
+      "pages": ["data-collector-api/introduction"]
     },
     {
       "group": "Endpoint Examples",
       "pages": [
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/delete"
+        "data-collector-api/endpoint/get",
+        "data-collector-api/endpoint/create",
+        "data-collector-api/endpoint/delete"
       ]
     }
   ],

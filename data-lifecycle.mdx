@@ -23,15 +23,35 @@ All data sources (your website, apps, API...) are sending data to the `Collector
 
 The `API Server` does the following **for every data point**:
 
-1. **Persist the raw data** in the `Database`.
-2. **Enrich or reject the data** by calling `before_validation` hooks (IP-to-location, IP filtering...).
-3. **Validate the data** against schemas (core + apps).
-4. **Acquire a lock** on the data at the user-level, to ensure consistency.
-5. **Reconciliate the user identity** to maintain a single view of the user.
-6. **Reattribute conversions** to the right marketing campaigns for `order` events.
-7. **Recompute user segments** to keep them up-to-date.
-8. **Trigger workflows** who "subscribe" to the data point (e.g. sending an email when a new `order` is created).
-9. **Forward the data** by calling the `on_suceess` hooks.
+<Steps>
+<Step title="Persist the data">
+The raw data is saved in the `Database` to avoid any loss.
+</Step>
+<Step title="Enrich or reject the data">
+Apps who "subscribe" to the `before_validation` hook are called to enrich or reject the data (e.g: IP-to-location, IP filtering…).
+</Step>
+<Step title="Validate the data">
+The payload is validated against the Rimdian tables schemas & apps schemas.
+</Step>
+<Step title="Acquire a lock">
+A lock is acquired on the data at the user-level, to ensure consistency. If the lock cannot be acquired, the data will be retried few secs later.
+</Step>
+<Step title="Reconciliate the user identity">
+The user identity is reconciliated to maintain a single view of the user.
+</Step>
+<Step title="Reattribute conversions">
+Conversions are reattributed to the right marketing campaigns for `order` & `sessions` events.
+</Step>
+<Step title="Recompute user segments">
+User segments are recomputed to keep them up-to-date.
+</Step>
+<Step title="Trigger workflows">
+Marketing automation workflows who "subscribe" to the data point are triggered (e.g. sending an email when a new `order` is created).
+</Step>
+<Step title="Forward the data">
+Apps who "subscribe" to the `on_success` hook are called for further processing (e.g. sending the data to a CRM).
+</Step>
+</Steps>
 
 ## Data consistency
 
@@ -41,7 +61,7 @@ Users also often close the browser before events are sent.
 
 To handle these cases, Rimdian has been designed to be **idempotent** & **consistent**, which implies that the data points sent to the `Collector` should contain all the contextual information needed to heal the dataset.
 
-In the following example of a web `pageview` hit sent to the `Collector` by the JavaScript tracker, the `user`, `device` and `session` objects are attached to the `pageview`, to make sure we can heal the dataset if they went missing.
+In the following example of a web `pageview` hit sent to the `Collector` by the [JavaScript SDK](/javascript-sdk), the `user`, `device` and `session` objects are attached to the `pageview`, to make sure we can heal the dataset if they went missing.
 
 ```json
 {
