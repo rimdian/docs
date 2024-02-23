@@ -44,7 +44,6 @@
         "introduction",
         "architecture",
         "data-lifecycle",
-        "integration",
         "user-identity-resolution",
         "multi-touch-attribution",
         "user-segmentation",
@@ -53,19 +52,8 @@
       ]
     },
     {
-      "group": "Librairies",
-      "pages": ["javascript-sdk"]
-    },
-    {
-      "group": "Essentials",
-      "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
-      ]
+      "group": "Integration",
+      "pages": ["integration/overview", "integration/javascript-sdk"]
     },
     {
       "group": "Data collector API",

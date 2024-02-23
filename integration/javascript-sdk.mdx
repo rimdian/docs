@@ -1,0 +1,382 @@
+---
+title: 'JavaScript SDK'
+description: 'Collect your web activity'
+iconType: duotone
+icon: code
+---
+
+# Key features
+
+- To comply with regulations, all the collected data (session, pageviews…) is kept in the browsers cache (and not dispatched) until user consent is gathered.
+- You can setup a custom tracking subdomain to improve data collection.
+- Rimdian only uses 1st party cookies
+- You can activate cross-domain tracking to avoid counting same users twice between your domains (i.e: **blog**.website.com → **shop**.website.com)
+- Time spent on every page is accurately recorded by taking care of window focus
+- Anonymous user IDs are automatically merged with authenticated identities when provided
+- User activity can be signed with an HMAC key to protect yourself from malicious data injections
+- You can provide a list of ignored web origins in order to avoid triggering new sessions, which is useful if you redirect your customers to an external payment service (Paypal…)
+- The SDK automatically attaches context (current `user`, `session`, `device`…) to every event (`pageview`, `cart`, `order`…) in order to self-heal the dataset in case of missing or “out-of-order” data points
+- The SDK will automatically reconciliate user identities passed in URLs (cross-device reconciliation)
+
+# General behavior
+
+When a new an anonymous visitor (= that is not logged in your website) lands on your website, the SDK will generate a random user ID, start a new session and save it in a cookie.
+
+Basic browser capabilities are collected: user-agent, screen resolution, language and if an ad-blocker is detected.
+
+As soon as you allow it, the SDK will start dispatching data to the server.
+
+When an anonymous user authenticates himself on your website, you can provide its *authenticated user ID* to the SDK and its anonymous identity will be merged with his authenticated identity.
+
+A new session starts when the previous one expires (30mins of inactivity) or when a new page of your website is loaded from a different origin (i.e: the referrer has a different domain, or the `utm_source` / `utm_medium` parameters have changed).
+
+# Installation
+
+The SDK should be initialised between the HTML `<head>` and `</head>` tags. It is synchronously loaded but it will wait for your web page to be ready before doing any work. Its impact on your website performance is negligible.
+
+Example:
+
+```jsx
+<head>
+  <script src="https://cdn-eu.rimdian.com/js/sdk.min.js" type="text/javascript"></script>
+  <script>
+    Rimdian.init({
+      workspace_id: 'YOUR_WORKSPACE_ID',
+      host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
+      cross_domains: ['blog.yourwebsite.com'],
+      ignored_origins: [{
+        utm_source: 'paypal.com',
+        utm_medium: 'referral'
+      }]
+    });
+    Rimdian.setDispatchConsent(true);
+  </script>
+</head>
+```
+
+# Usage
+
+## User consent
+
+Most regulations (GDPR…) allow you to collect web user activities on your website as long as the data is not merged with another dataset and is used to produce anonymous statistical aggregations.
+
+In such situation you can dispatch the collected data before collecting user consent on your cookie banner.
+
+To start dispatching data to Rimdian use the JS function:
+
+```jsx
+Rimdian.setDispatchConsent(true);
+```
+
+### On-site personalisation & marketing
+
+As soon as you want to see the navigation history for a specific user in order to customise its on-site experience, you will have to collect his `consent_personalization`. The `consent_personalization` field also unlocks a user centric view in the Rimdian Console.
+
+For marketing & advertising purpose, you have to collect his `consent_marketing`.
+
+If your user accepts the whole “cookie banner”, you can use the `consent_all` field.
+
+To unlock a user centric view in Rimdian, use the following JS function:
+
+```jsx
+Rimdian.setUserContext({
+	consent_all: true, // accepts everything
+	consent_personalization: true, // onsite & user centric experience
+	consent_marketing: true // marketing & advertising (Google Ads, Meta...)
+});
+```
+
+## Users authentication
+
+As soon as a user is authenticating himself on your website, and you know its user ID, you can provide it to the SDK like this:
+
+```jsx
+Rimdian.setUserContext({
+	external_id: 'YOUR USER ID',
+  is_authenticated: true,
+	signed_up_at: '2022-08-31T16:11:14.922Z', // required when is_authenticated: true
+	// optionaly provide its HMAC signature for maximum security
+	hmac: 'YOUR USER ID HMAC'
+});
+```
+
+## Dispatching data
+
+By default, all the collected data is kept in the browsers cache. To dispatch it to Rimdian, via your tracking subdomain, use the following function:
+
+```jsx
+// trackPageview(), trackOrder()... should be placed above dispatch()
+Rimdian.dispatch();
+```
+
+## User context
+
+You can enrich the user profiles, when they are logged in, or when they give their email to sign up for your newsletter like this:
+
+```jsx
+Rimdian.setUserContext({
+  external_id: 'YOUR AUTHENTICATED USER ID',
+	is_authenticated: true, // true when the user is logged in
+  signed_up_at: '2022-08-31T16:11:14.922Z', // required when is_authenticated: true
+	hmac: 'user ID HMAC',
+  // ISO date: first time you saw this user if he signed up in the past
+	created_at: '2022-08-31T16:11:14.922Z', 
+	// ISO date: controls how the following data will be merged in the database
+	updated_at: '2022-08-31T16:11:14.922Z',
+	// ISO format timezone
+	timezone: 'Europe/Paris',
+  // ISO format language
+	language: 'en',
+  // ISO format country code
+	country: 'FR', 
+  // true to unlock user centric view
+	user_centric_consent: true, 
+	last_ip: '000.000.000.000',
+	longitude: 12.123,
+	latitude: 12.123,
+	first_name: 'John',
+	last_name: 'Doe',
+	gender: 'male', // male or female
+  // birthday: YYYY-MM-DD
+	birthday: '1980-01-20',
+  // user profile photo URL
+	photo_url: 'https://your-website.com/user-photo.jpg',
+	email: 'johndoe@gmail.com',
+	email_md5: '9fbdfc2750d2ad86a3ca8e7675582771',
+	email_sha1: 'e1e8d3e4a336d4f9dc63b70a534ff10834471556',
+	email_sha256: '06a240d11cc201676da976f7b49341181fd180da37cbe40a77432c0a366c80c3',
+	// international E164 phone number format 
+  telephone: '+33658764102',
+	address_line_1: '1 avenue des Champs Elysees',
+	address_line_2: 'Apt 4',
+	city: 'Paris',
+	region: 'Ile de France',
+	postal_code: '75001',
+	state: 'IDF',
+
+  // extra app field names should start with the app ID
+	app_appname_field1: 'abc',
+  app_appname_field2: 1.234,
+  app_appname_field3: true
+});
+```
+
+## Pageviews
+
+You can track the current page view with the `trackPageview()` function.
+
+```
+Rimdian.trackPageview();
+
+// with optional fields:
+Rimdian.trackPageview({
+  page_id: 'homepage', // current page URL by default
+  title: 'Homepage', // current page title by default
+  referrer: 'https://....', // page referrer by default
+  image_url: 'https://image-url.jpg', // blog post cover / product image
+  
+  // product page metadata
+  product_external_id: 'abc123',
+  product_sku: 'abc123',
+  product_name: 'iPhone 21',
+  product_brand: 'Apple',
+  product_category: 'mobile phone',
+  product_variant_external_id: 'xyz123',
+  product_variant_title: 'Gold 1To',
+  product_price: 120000, // amount in cents
+  product_currency: 'USD', // currency ISO format
+
+  // extra app field names should start with the app ID
+	app_appname_field1: 'abc',
+  app_appname_field2: 1.234,
+  app_appname_field3: true
+});
+```
+
+## Ecommerce
+
+### Shopping cart
+
+To track the current shopping cart, use the following function:
+
+```jsx
+Rimdian.trackCart({
+  // required fields:
+  external_id: 'CART ID',
+	created_at: '2022-08-31T16:11:14.922Z', 
+	// ISO date: controls how the following data will be merged in the database
+	updated_at: '2022-08-31T16:11:14.922Z',
+  items: [
+    {
+      // required item fields:
+      external_id: 'abc123', // item ID
+      product_external_id: 'iphone21', // product ID
+      name: 'iPhone 21',
+      
+			// optional item fields:
+      sku: 'iphone21',
+      brand: 'Apple',
+      category: 'mobile phone',
+      variant_external_id: 'iphone-21-gold',
+      variant_title: 'iPhone 21 Gold',
+      image_url: 'https://product-image.jpg',
+      price: 120000, // amount in cents
+      quantity: 1,
+
+		  // extra app field names should start with the app ID
+    	app_appname_field1: 'abc',
+      app_appname_field2: 1.234,
+      app_appname_field3: true
+    },
+   ...more items...
+  ],
+  
+  // optional fields:
+  order_external_id: 'order123', // attach this cart to an order
+  public_url: 'https://cart-url...', // URL to retrieve the cart
+
+  // extra app field names should start with the app ID
+	app_appname_field1: 'abc',
+  app_appname_field2: 1.234,
+  app_appname_field3: true
+});
+```
+
+### Order
+
+Once a customer placed an order you can call the following function:
+
+```jsx
+Rimdian.trackOrder({
+	// required fields:
+  external_id: 'order123',
+  created_at: '2022-08-31T16:11:14.922Z', // ISO date format
+  subtotal_price: 10099, // amount in cents, without taxes and shipping
+  total_price: 11099, // amount in cents, with taxes and shipping
+  
+  // optional fields:
+  currency: 'USD', // currency ISO format
+  discount_codes: ['code1', 'code2'], // list of discount codes applied
+  cancelled_at: '2022-08-31T16:11:14.922Z', // ISO date format
+	cancel_reason: 'customer returned the product',
+
+  items: [
+    {
+      // required item fields:
+      external_id: 'abc123', // item ID
+			order_external_id: 'order123', // order ID
+      product_external_id: 'iphone21', // product ID
+      name: 'iPhone 21',
+      
+			// optional item fields:
+      sku: 'iphone21',
+      brand: 'Apple',
+      category: 'mobile phone',
+      variant_external_id: 'iphone-21-gold',
+      variant_title: 'iPhone 21 Gold',
+      image_url: 'https://product-image.jpg',
+      price: 120000, // amount in cents
+      quantity: 1
+    },
+   ...more items...
+	],
+
+	// ISO date: controls how the following data will be merged in the database
+	updated_at: '2022-08-31T16:11:14.922Z',
+
+  // extra app field names should start with the app ID
+	app_appname_field1: 'abc',
+  app_appname_field2: 1.234,
+  app_appname_field3: true
+});
+```
+
+Don’t forget to also send the shopping cart concerned by that order and provide the `order_external_id` field in the `trackCart()` function. See above.
+
+## Cross-domain tracking
+
+To maintain consistency between your domains and subdomains, you can provide a list of the concerned domains in the config of the SDK.
+
+By doing this, every time a user will go from `https://**blog**.website.com` to `https://**shop**.website.com` , its user ID & device ID will be passed into the URL of the destination page and prevent the SDK counting the same user twice and start a new session.
+
+Example of configuration:
+
+```jsx
+// configuration for shop.website.com
+Rimdian.init({
+  workspace_id: 'YOUR_WORKSPACE_ID',
+  host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
+
+  // we specify blog.website.com here
+  cross_domains: ['**blog**.yourwebsite.com'] 
+});
+
+// configuration for blog.website.com
+Rimdian.init({
+  workspace_id: 'YOUR_WORKSPACE_ID',
+  host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
+
+  // we specify shop.website.com here
+  cross_domains: ['**shop**.yourwebsite.com'] 
+});
+```
+
+The parameters passed into the destination page are:
+
+- `_did=xxx` for the device ID
+- `_uid=xxx` for the user ID
+- `_auth=true` if the user ID is authenticated
+- `_uidh=xxx` for the user ID HMAC if provided
+
+## Cross-device reconciliation
+
+To significantly increase your cross-device reconciliation rate, and improve the quality of your multi-touch attribution results, we encourage you to put the following parameters into all the URLs of the emails/SMS sent to your customers.
+
+When they will open your emails/SMS on an anonymous mobile device, it will be automatically merged into their authenticated user profile.
+
+All the following parameters are optional:
+
+- `_uid=xxx` for the user ID with `_auth=true` if the user ID is authenticated
+- `_uidh=xxx` for the user ID HMAC if provided
+- `_email=johndoe@gmail.com` for the user email address
+- `_emailmd5=xxx` for the MD5 hash of user email address
+- `_emailsha1=xxx` for the SHA1 hash of user email address
+- `_emailsha256=xxx` for the SHA256 hash of user email address
+- `_telephone=+33600000000` for the phone number in E164  international format
+
+Examples:
+
+```jsx
+// for an authenticated user
+https://your-website.com/landing-page?_uid=123&_auth=true
+
+// for an anonymous user with a known email (i.e: from the newsletter)
+https://your-website.com/landing-page?_email=johndoe@gmail.com
+
+// for an anonymous user with a masked email
+https://your-website.com/landing-page?_emailmd5=xxx
+```
+
+## Session filtering
+
+Every session become a touchpoint in the multi-touch attribution models, that will receive credits for conversions, and help measuring the performance of your trafic channels.
+
+It’s mandatory to filter out the sources of trafic that don’t contribute to your conversions, especially the payment gateways/redirections during checkout.
+
+Otherwise a new session will start after your customer paid his order and some credits will be attributed to your payment provider.
+
+Example of filter:
+
+```jsx
+Rimdian.init({
+  workspace_id: 'YOUR_WORKSPACE_ID',
+  host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
+  ignored_origins: [{
+		// required fields:
+    utm_source: 'paypal.com',
+    utm_medium: 'referral',
+		// optional field:
+		utm_campaign: 'xxx'
+  }]
+});
+```
