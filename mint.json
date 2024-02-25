@@ -53,7 +53,20 @@
     },
     {
       "group": "Integration",
-      "pages": ["integration/overview", "integration/javascript-sdk"]
+      "pages": ["integration/overview", "integration/shopify", "integration/javascript-sdk"]
+    },
+    {
+      "group": "Apps development",
+      "pages": [
+        "apps-development/getting-started",
+        "apps-development/private-app-installation",
+        "apps-development/tasks",
+        "apps-development/data-hooks",
+        "apps-development/sql-queries",
+        "apps-development/extra-columns",
+        "apps-development/tables",
+        "apps-development/app-manifest-reference"
+      ]
     },
     {
       "group": "Data collector API",

@@ -1,0 +1,292 @@
+---
+title: 'Shopify integration'
+sidebarTitle: 'Shopify'
+description: ''
+icon: shopify
+iconType: duotone
+---
+
+Integrating Rimdian with Shopify allows you to collect users navigation, import previous orders & customers and sync your data in real-time with webhooks.
+
+The integration is composed of 3 steps:
+
+1. Adding the [JavaScript SDK](/integration/javascript-sdk) on your template
+2. Adding a script in the “order confirmation” page
+3. Creating a Shopify API key and connecting it with Rimdian
+
+## Adding the JavaScript SDK
+
+<Tip>Make sure to read the [JavaScript SDK documentation](/integration/javascript-sdk) before moving forward.</Tip>
+
+This integration requires the intervention of a frontend web developer.
+
+### Initialisation
+
+The SDK should be initialised between the HTML `<head> ... </head>` tags of your layout, usually in the template file `Layout > theme.liquid`
+
+```html
+<head>
+  ...
+
+  <script src="https://cdn-eu.rimdian.com/js/sdk.min.js" type="text/javascript"></script>
+  <script>
+    Rimdian.init({
+      workspace_id: 'YOUR_WORKSPACE_ID',
+      host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
+      cross_domains: ['blog.yourwebsite.com'],
+      ignored_origins: [{
+        utm_source: 'paypal.com',
+        utm_medium: 'referral'
+      }]
+    });
+    Rimdian.setDispatchConsent(true);
+
+		{%- if customer -%}
+		Rimdian.setUserContext({
+			external_id: '{{ customer.id }}',
+			is_authenticated: true,
+			hmac: '{{ customer.id | hmac_sha256: "YOUR_SECRET_KEY" }}'
+		});
+		{%- endif -%}
+
+		var pageviewData = {title: "{{ page_title }}"};
+
+		{%- if product -%}
+		var currentProduct = {{ product | json }};
+		var currentVariant = {{ product.selected_or_first_available_variant | json }};
+
+        
+		if (currentProduct && currentProduct.id) {
+		  pageviewData.product_external_id = ''+currentProduct.id;
+		  pageviewData.product_name = currentProduct.title.replace(/\\"/, '"');
+      pageviewData.product_price = currentProduct.price;
+    }
+		if (currentVariant && currentVariant.id) {
+		  pageviewData.product_variant_external_id = ''+currentVariant.id;
+		  pageviewData.product_variant_title = currentVariant.title.replace(/\\"/, '"');
+		  pageviewData.product_sku = currentVariant.sku;
+      pageviewData.product_price = currentVariant.price;
+		}
+		{%- endif -%}
+
+		Rimdian.trackPageview(pageviewData);
+		Rimdian.dispatch();
+  </script>
+</head>
+```
+
+## Shopping cart
+
+In most Shopify websites, the shopping cart can be updated dynamically with JavaScript when a user adds a product to the cart without redirecting to the `/cart` URL.
+
+It can also be updated from the `/cart` URL.
+
+Make sure you track the shopping cart in both cases.
+
+### Cart template
+
+To track shopping carts updates from the `/cart` URL you can add the following script to the `cart.liquid` template:
+
+```html
+<script type="text/javascript">
+	var rmdItems = [];
+	{% if cart.item_count > 0 %}
+		{%- for item in cart.items -%}
+			rmdItems.push({
+				external_id: '{{ item.id }}',
+				product_external_id: '{{ item.product_id }}',
+				name: '{%- if item.title == blank -%}{{ item.sku }}{%- else -%}{{ item.title }}{%- endif -%}',
+				quantity: {{ item.quantity }},
+				{%- if item.sku and item.sku != '' -%}
+					sku: '{{ item.sku }}',
+				{%- endif -%}
+				{%- if item.variant_id and item.variant_id != '' -%}
+					variant_external_id: '{{ item.variant_id }}',
+					variant_title: '{{ item.variant.title}}',
+				{%- endif -%}
+				price: parseFloat({{ item.final_price }}) / 100,
+				brand: '{{ item.vendor }}',
+				image_url: '{{ item | img_url: '300x300' }}'
+			});
+		{%- endfor -%}
+	{% endif %}
+	
+	{% if cart.id %}
+	Rimdian.trackCart({
+		external_id: '{{ cart.id }}',
+		created_at: '{{ cart.created_at }}', 
+		updated_at: '{{ cart.updated_at }}', 
+	  items: rmdItems,
+		currency: {{ cart.currency }}
+	});
+	Rimdian.dispatch();
+	{% endif %}
+</script>
+```
+
+### JavaScript cart
+
+Your shopping cart can be updated without redirecting to the `/cart` URL, with the help of a JavaScript function available in the file `Assets > theme.js.liquid`.
+
+To track shopping carts updates with this method, you have to declare the following function after initialising the SDK:
+
+```html
+<head>
+...
+<script type="text/javascript" src="https://cdn-eu.rimdian.com/js/sdk.min.js"></script>
+<script type="text/javascript">
+
+Rimdian.init(...);
+
+Rimdian.onShopifyCart = function(cart) {
+	var rmdItems = [];
+	if (cart.item_count > 0) {
+		cart.items.forEach(function(item) {
+			var rmdItem = {
+				external_id: ''+item.id,
+				product_external_id: ''+item.product_id,
+				name: item.title && item.title != '' ? ''+item.title : ''+item.sku,
+				quantity: parseInt(item.quantity, 10),
+				price: parseFloat(item.final_price) / 100,
+				brand: ''+item.vendor,
+			};
+			if (item.sku && item.sku != '') rmdItem.sku = ''+item.sku;
+			if (item.variant_id && item.variant_id != '') {
+				rmdItem.variant_external_id = ''+item.variant_id;
+				rmdItem.variant_title = ''+item.variant.title;
+			}
+			if (item.featured_image && item.featured_image.url) rmdItem.image_url = item.featured_image.url;
+			rmdItems.push(rmdItem);
+		});
+	}
+	Rimdian.trackCart({
+		external_id: ''+cart.id,
+		created_at: cart.created_at, 
+		updated_at: cart.updated_at, 
+		items: rmdItems,
+		currency: cart.currency
+	});
+	Rimdian.dispatch();
+};
+</script>
+</head>
+```
+
+And update the file `theme.js.liquid` like this:
+
+```js
+// Get from cart.js returns the cart in JSON
+Shopify.getCart = function(callback) {
+	jQuery.getJSON('/cart.js', function (cart, textStatus) {
+		if (Rimdian && Rimdian.onShopifyCart) {
+			try {
+				Rimdian.onShopifyCart(cart);
+			} catch(e) {
+				console.log(e);
+			}
+		}
+		if ((typeof callback) === 'function') {
+			callback(cart);
+		}
+		Shopify.onCartUpdate(cart);
+	});
+};
+```
+
+## Adding a script on your “order confirmation” page
+
+It is mandatory to track the order on the client side with the following script to attach the order to the current web session. Without this step, we won’t be able to properly attribute the performance of your marketing efforts.
+
+Checkout pages are controlled by Shopify and are not available in your templates (unless you are a Shopify+ customer).
+
+To track order on the confirmation page, you have to copy and paste the following script into your store `Settings > Checkout and accounts > Order status page “Additional scripts”`
+
+```html
+<script type="text/javascript" src="https://cdn-eu.rimdian.com/js/sdk.min.js"></script>
+<script type="text/javascript">
+  Rimdian.init({
+    workspace_id: 'YOUR_WORKSPACE_ID',
+    host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com'
+  });
+  Rimdian.setDispatchConsent(true);
+
+Rimdian.trackPageview({title: "Checkout thank you"});
+
+{%- if checkout.order -%}
+
+  Rimdian.setUserContext({
+		external_id: '{{ checkout.order.customer.id }}',
+		is_authenticated: true,
+		hmac: '{{ checkout.order.customer.id | hmac_sha256: "YOUR_SECRET_KEY" }}'
+	});
+
+  var rmdOrderItems = [];
+  
+  {%- for item in checkout.order.line_items -%}
+			rmdOrderItems.push({
+				external_id: '{{ item.id }}',
+				product_external_id: '{{ item.product_id }}',
+				name: '{%- if item.title == blank -%}{{ item.sku }}{%- else -%}{{ item.title }}{%- endif -%}',
+				quantity: {{ item.quantity }},
+				{%- if item.sku and item.sku != '' -%}
+					sku: '{{ item.sku }}',
+				{% endif %}
+				{%- if item.variant_id and item.variant_id != '' -%}
+					variant_external_id: '{{ item.variant_id }}',
+					variant_title: '{{ item.variant.title}}',
+				{% endif %}
+				price: parseFloat({{ item.final_price }}) / 100,
+				brand: '{{ item.vendor }}',
+				image_url: '{{ item | img_url: '300x300' }}'
+			});
+  {%- endfor -%}
+   
+  Rimdian.trackOrder({
+	  external_id: '{{ checkout.order.name }}',
+	  created_at: '{{ checkout.order.created_at }}',
+	  subtotal_price: parseFloat('{{ checkout.order.subtotal_price }}') / 100,
+	  total_price: parseFloat('{{ checkout.order.total_price }}') / 100,
+	  currency: '{{ shop.currency }}',
+		items: rmdOrderItems
+	});
+
+  Rimdian.dispatch();
+{%- endif -%}
+</script>
+```
+
+## Creating a Shopify API key for Rimdian
+
+In order to be able to import the previous orders & customers, and receive updates in real-time via webhooks, we need to connect Rimdian to your Shopify store API.
+
+1. Go to `Settings > Apps and sales channels`
+2. Click on the button `Develop apps for your store`
+3. Click on the button `Create an app`, and name it “Rimdian”
+4. Then click on the button `Configure Admin API scopes`
+5. Check the following scopes and save: `read_orders` , `read_customers` , `read_customer_events`
+6. Then click on the button `Install app`
+7. Grab the `Admin API access token`, `API key` and `API secret key`, and paste them into your Rimdian Shopify app.
+8. Then connect your Shopify app in Rimdian
+
+
+<img
+  src="/integration/shopify/settings.png"
+  alt="Shopify settings"
+/>
+
+<img
+  src="/integration/shopify/app-cm.png"
+  alt="Create a Shopify app"
+/>
+<img
+  src="/integration/shopify/scopes.png"
+  alt="Define app scopes"
+/>
+<img
+  src="/integration/shopify/install.png"
+  alt="Install the app"
+/>
+<img
+  src="/integration/shopify/app-keys.png"
+  alt="Get the app keys"
+/>

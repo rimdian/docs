@@ -1,0 +1,58 @@
+---
+title: 'Private app installation'
+description: ''
+icon: square-plus
+iconType: duotone
+---
+
+Once your app is deployed to the internet you can install it in a Rimdian workspace.
+
+### Create a new Service Account
+
+On your organisation dashboard, click the `New Service Account` button.
+
+<Frame caption="Organisation dashboard">
+![Organisation dashboard](/apps-development/app-org.jpg)
+</Frame>
+
+
+Give it a name, a new login & password that you should keep securely, you won’t be able to view or update this password again.
+
+<Frame caption="Create a service account">
+![Create a service account](/apps-development/app-service-account.jpg)
+</Frame>
+
+
+### Create a private app
+
+Select your workspace, and click the ➕ button in the topbar to go to the App Store and create a new **Private App**.
+
+<Frame caption="Create a private app">
+![app-manifest.jpg](/apps-development/app-manifest.jpg)
+</Frame>
+
+Provide the `App secret key` used by your app to sign webhooks & the iframe token. In the [NextJS App Template](https://github.com/rimdian/app-template), this is the `APP_SECRET_KEY` env variable.
+
+And upload the `manifest.json` file of your app.
+
+### Review the app capabilities
+
+Before installing the app, you can review all the capabilities & permissions the app is asking.
+
+Especially the domain name of the webhook endpoint that will receive data.
+
+<Frame caption="Review of app capabilities">
+![app-review.jpg](/apps-development/app-review.jpg)
+</Frame>
+
+### Activate the app
+
+Once installed, your private app will need to collect API credentials to interact with the Rimdian API & whatever settings required by your app.
+
+I.e: if you build an app that interacts with the Google Adwords API, you will have to show the Google Connect button here, to collect Adwords credentials before activating your app.
+
+<Frame caption="App activation">
+![app-init.jpg](/apps-development/app-init.jpg)
+</Frame>
+
+Upon activation, your app tasks & data hooks will also be activated.
