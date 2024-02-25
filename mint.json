@@ -32,6 +32,10 @@
   },
   "tabs": [
     {
+      "name": "Data schemas",
+      "url": "data-schemas"
+    },
+    {
       "name": "Data collector API",
       "url": "data-collector-api"
     }
@@ -66,6 +70,23 @@
         "apps-development/extra-columns",
         "apps-development/tables",
         "apps-development/app-manifest-reference"
+      ]
+    },
+    {
+      "group": "On-prem deployment",
+      "pages": ["on-premise-deployment/checklist"]
+    },
+    {
+      "group": "Data schemas",
+      "pages": [
+        "data-schemas/introduction",
+        "data-schemas/user",
+        "data-schemas/order",
+        "data-schemas/cart",
+        "data-schemas/session",
+        "data-schemas/pageview",
+        "data-schemas/custom_event",
+        "data-schemas/device"
       ]
     },
     {
