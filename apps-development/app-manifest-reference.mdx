@@ -88,6 +88,10 @@ iconType: duotone
     **Is cron** - Whether the task is a periodic cron job. Example: `true`.
 </ParamField>
 
+<ParamField path="minutes_interval" type="integer">
+    **Minutes interval** - The interval in minutes for the cron job. Example: `720`.
+</ParamField>
+
 <ParamField path="on_multiple_exec" type="enum">
     **On multiple exec** - What to do when the task is executed multiple times concurently. Values: `allow`, `discard_new`, `retry_later`, `abort_existing`.
 </ParamField>
@@ -253,9 +257,17 @@ iconType: duotone
     {
       "id": "appx_default_task_1",
       "name": "Task 1",
-      "description": "Example of task",
+      "description": "Example of manual task",
       "is_cron": false,
       "on_multiple_exec": "abort_existing"
+    },
+    {
+      "id": "appx_default_task_2",
+      "name": "Task 2",
+      "description": "Example of cron task",
+      "is_cron": true,
+      "minutes_interval": 720,
+      "on_multiple_exec": "discard_new"
     }
   ],
   "data_hooks": [

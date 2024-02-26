@@ -40,15 +40,15 @@ When a task is launched, your app `webhook_endpoint` will be called with the fol
 }
 ```
 
-Your response to the webhook allows you to:
+The response payload to the webhook allows you to:
 
 - Mark the worker as done or not
 - Return a message (optional)
 - Return an error (optional)
 - Update the current worker state (optional), useful to keep track of the worker progress (pagination...)
 - Mutate the app state (optional)
-- Return a list of data items to import (optional)
-- Delay the next request (optional), useful if you interact with external systems that have rate limits like the Amazon Seller API
+- Return a list of data items to import to the Collector (optional)
+- Delay the next job (optional), useful if you interact with external systems that have rate limits like the Amazon Seller API
 
 
 **The webhook will timeout after 20 seconds.**
