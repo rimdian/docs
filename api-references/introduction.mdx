@@ -1,0 +1,43 @@
+---
+title: 'Introduction'
+description: ''
+icon: angles-right
+iconType: duotone
+---
+
+Rimdian provides 2 types of APIs: 
+
+1. **Data collector API** - This is the only entry point for importing data into Rimdian.
+2. **Rimdian API** - This API is used to manage your workspace and settings.
+
+## About the Data Collector
+
+The sole job of the data collector is to receive data from external sources and push it into a queue for asynchronous processing.
+
+There are 2 queues of data, per workspace:
+
+1. **Live** - This queue is used to receive live data from the Javascript SDK or mobile apps.
+2. **Historical** - This queue is used to import historical data from external sources.
+
+<Tip>To make sure the platform reacts in real-time to users activity, it's very important to never import historical data into the Live queue.</Tip>
+
+For testing purpose or very specific use cases, it is also possible to import data synchronously using the `POST /sync` endpoint. In this case, the queue will be skipped and the data will be immediately processed by a Rimdian Server.
+
+<CardGroup cols={2}>
+  <Card
+    title="Data collector API"
+    icon="file-import"
+    iconType="duotone"
+    href="/api-references/data-import"
+  >
+    Import data from external sources
+  </Card>
+  <Card
+    title="Rimdian API"
+    icon="server"
+    iconType="duotone"
+    href="/api-references/server"
+  >
+    Manage your workspace and settings
+  </Card>
+</CardGroup>

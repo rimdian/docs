@@ -32,12 +32,12 @@
   },
   "tabs": [
     {
-      "name": "Data schemas",
-      "url": "data-schemas"
+      "name": "Data import schemas",
+      "url": "data-import-schemas"
     },
     {
-      "name": "Data collector API",
-      "url": "data-collector-api"
+      "name": "API Reference",
+      "url": "api-references"
     }
   ],
   "anchors": [],
@@ -57,7 +57,12 @@
     },
     {
       "group": "Integration",
-      "pages": ["integration/overview", "integration/shopify", "integration/javascript-sdk"]
+      "pages": [
+        "integration/overview",
+        "integration/workspace-configuration",
+        "integration/javascript-sdk",
+        "integration/shopify"
+      ]
     },
     {
       "group": "Apps development",
@@ -77,28 +82,45 @@
       "pages": ["on-premise-deployment/checklist"]
     },
     {
-      "group": "Data schemas",
+      "group": "Data import schemas",
       "pages": [
-        "data-schemas/introduction",
-        "data-schemas/user",
-        "data-schemas/order",
-        "data-schemas/cart",
-        "data-schemas/session",
-        "data-schemas/pageview",
-        "data-schemas/custom_event",
-        "data-schemas/device"
+        "data-import-schemas/introduction",
+        "data-import-schemas/user",
+        "data-import-schemas/order",
+        "data-import-schemas/custom_event",
+        "data-import-schemas/session",
+        "data-import-schemas/cart",
+        "data-import-schemas/pageview",
+        "data-import-schemas/device"
       ]
     },
     {
-      "group": "Data collector API",
-      "pages": ["data-collector-api/introduction"]
+      "group": "Getting started",
+      "pages": ["api-references/introduction"]
     },
     {
-      "group": "Endpoint Examples",
+      "group": "Authentication",
       "pages": [
-        "data-collector-api/endpoint/get",
-        "data-collector-api/endpoint/create",
-        "data-collector-api/endpoint/delete"
+        "api-references/server/account-login",
+        "api-references/server/account-refresh-token"
+      ]
+    },
+    {
+      "group": "Data Collector API",
+      "pages": [
+        "api-references/collector/historical",
+        "api-references/collector/live",
+        "api-references/collector/sync"
+      ]
+    },
+    {
+      "group": "Rimdian Server API",
+      "pages": [
+        "api-references/server/app-get",
+        "api-references/server/app-activate",
+        "api-references/server/app-mutate-state",
+        "api-references/server/app-exec-query",
+        "api-references/server/app-stop"
       ]
     }
   ],

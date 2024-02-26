@@ -1,0 +1,420 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Rimdian API reference",
+    "description": "Rimdian provides 2 apis: a Data Collector API to import data & a Server API to manage your workspace and settings.",
+    "license": {
+      "name": "MIT"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://api-eu.rimdian.com"
+    }
+  ],
+
+  "paths": {
+    "/api/account.login": {
+      "post": {
+        "description": "Login to the Rimdian API",
+        "requestBody": {
+          "description": "Login payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "account": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "full_name": {
+                          "type": "string"
+                        },
+                        "timezone": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "locale": {
+                          "type": "string"
+                        },
+                        "is_service_account": {
+                          "type": "boolean"
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      }
+                    },
+                    "refresh_token": {
+                      "type": "string"
+                    },
+                    "refresh_token_expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "access_token_expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "example": {
+                    "account": {
+                      "id": "123456789",
+                      "full_name": "John Doe",
+                      "timezone": "Europe/Paris",
+                      "email": "johndoe@website.com",
+                      "locale": "en-US",
+                      "is_service_account": false,
+                      "created_at": "2024-01-01T00:00:00Z",
+                      "updated_at": "2024-01-01T00:00:00Z"
+                    },
+                    "refresh_token": "xxxxx",
+                    "refresh_token_expires_at": "2024-01-01T00:00:00Z",
+                    "access_token": "xxxxx",
+                    "access_token_expires_at": "2024-01-01T00:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "invalid email or password"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/account.refreshAccessToken": {
+      "post": {
+        "description": "Refresh the access token",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access token refreshed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "access_token_expires_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "example": {
+                    "access_token": "xxxxx",
+                    "access_token_expires_at": "2024-01-01T00:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "invalid token"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/data": {
+      "post": {
+        "description": "Post data to the Collector for asynchronous processing",
+        "requestBody": {
+          "description": "Data import payload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataImport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Data import response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "queued"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "task error: ..."
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "url": "http://collector-eu.rimdian.com"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+
+    "/live": {
+      "post": {
+        "description": "Post live data to the Collector for asynchronous processing",
+        "requestBody": {
+          "description": "This endpoint is used by the JavaScript SDK & mobile apps to send live data to the Collector for asynchronous processing",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataImport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Data import response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "queued"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "task error: ..."
+                }
+              }
+            }
+          }
+        },
+        "servers": [
+          {
+            "url": "http://collector-eu.rimdian.com"
+          }
+        ]
+      }
+    },
+
+    "/sync": {
+      "post": {
+        "description": "Post live data to the Collector for asynchronous processing",
+        "requestBody": {
+          "description": "This endpoint is used for special cases where you need to send & process data synchronously. The data is processed immediately and the response is returned in the same request.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataImport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Sync data import response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "has_error": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Item validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "has_error": true,
+                    "error": "item validation error: ...",
+                    "queue_should_retry": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "servers": [
+        {
+          "url": "http://collector-eu.rimdian.com"
+        }
+      ]
+    }
+  },
+
+  "components": {
+    "schemas": {
+      "DataImport": {
+        "required": ["workspace_id", "items"],
+        "type": "object",
+        "properties": {
+          "workspace_id": {
+            "description": "Workspace ID",
+            "type": "string"
+          },
+          "items": {
+            "description": "Array of 100 items max to import",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "kind": {
+                  "description": "Kind of item",
+                  "type": "string"
+                }
+              }
+            },
+            "minItems": 1,
+            "maxItems": 100
+          }
+        },
+        "example": {
+          "workspace_id": "acme_workspace",
+          "items": [
+            {
+              "kind": "user",
+              "user": {
+                "external_id": "test_user_1",
+                "is_authenticated": false,
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-01T00:00:00Z",
+                "email": "test@website.com",
+                "first_name": "John",
+                "last_name": "Doe"
+              }
+            }
+          ]
+        }
+      },
+      "Error": {
+        "required": ["error", "message"],
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

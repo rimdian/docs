@@ -1,0 +1,109 @@
+---
+title: 'Introduction'
+description: ''
+icon: angles-right
+iconType: duotone
+---
+
+Rimdian comes with predefined schemas for the most common types of content. These schemas are designed to handle most of the uses cases, but you can always extend them with Apps to store additional data.
+
+Refer to the [Data Collector API](/api-references/introduction) section to import data into Rimdian.
+
+## App items
+
+Apps can define their own tables to store additional data. For example, a "Loyalty" app could define a `app_loyalty_points` table to store the points earned by users.
+
+In such the data import item should look like:
+
+```json
+{
+  "kind": "app_loyalty_points",
+  "app_loyalty_points": {
+    "external_id": "transaction_123",
+    "created_at": "2021-01-01T00:00:00Z",
+    "user_id": "xxxxxxx",
+    "points": 100
+  }
+}
+```
+
+## App extra columns
+
+Apps can also define extra columns for the predefined schemas. For example, a "Loyalty" app could define a `app_loyalty_points` column for the `user` schema to store the points earned by users.
+
+In such the data import item should look like:
+
+```json
+{
+  "kind": "user",
+  "user": {
+    "external_id": "customer_123",
+    "is_authenticated": true,
+    "created_at": "2023-01-01T00:00:00Z",
+    "created_at": "2024-01-01T00:00:00Z",
+    "app_loyalty_points": 100
+  }
+}
+```
+
+
+## Predefined schemas
+
+<CardGroup cols={2}>
+  <Card
+    title="User"
+    icon="user"
+    iconType="duotone"
+    href="/data-import-schemas/user"
+  >
+    Store information about your visitors & customers.
+  </Card>
+  <Card
+    title="Order"
+    icon="box-taped"
+    iconType="duotone"
+    href="/data-import-schemas/order"
+  >
+    Store information about orders made by your customers.
+  </Card>
+  <Card
+    title="Custom event"
+    icon="arrow-pointer"
+    iconType="duotone"
+    href="/data-import-schemas/custom-event"
+  >
+    Store information about custom events done by your users.
+  </Card>
+  <Card
+    title="Session"
+    icon="hourglass"
+    iconType="duotone"
+    href="/data-import-schemas/session"
+  >
+    Store information about the sessions (visits) of your users.
+  </Card>
+  <Card
+    title="Cart"
+    icon="cart-shopping"
+    iconType="duotone"
+    href="/data-import-schemas/cart"
+  >
+    Store information about the carts & items added by your users.
+  </Card>
+  <Card
+    title="Pageview"
+    icon="eye"
+    iconType="duotone"
+    href="/data-import-schemas/pageview"
+  >
+    Store information about the pageviews of your users.
+  </Card>
+  <Card
+    title="Device"
+    icon="laptop-mobile"
+    iconType="duotone"
+    href="/data-import-schemas/device"
+  >
+    Store information about the devices used by your users.
+  </Card>
+</CardGroup>

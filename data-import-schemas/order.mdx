@@ -1,0 +1,76 @@
+---
+title: 'Order'
+description: ''
+icon: box-taped
+iconType: duotone
+---
+
+Orders have some required fields:
+
+- `external_id`
+- `created_at`
+- `domain_id` , from your workspace configured Domains
+- `subtotal_price` , revenue **in cents** without shipping and taxes (i.e: $105.20 → 10520)
+- `total_price` , revenue **in cents** with shipping and taxes (i.e: $187.31 → 18731)
+
+The `order` item also requires to provide the minimum required `user` object. This is mandatory to self-heal the dataset if the `order` is imported into the database before the `user` profile (out-of-order).
+
+Installed apps might have added additional fields to your orders. These fields are in the format: `app_appname_fieldname`
+
+```jsx
+
+{
+  "kind": "order",
+	// user with minimum required fields is mandatory:
+	"user": {
+    "external_id": "user_id",
+    "created_at": "2022-10-30T22:21:48.020Z",
+    "is_authenticated": true,
+    "signed_up_at": "2022-10-30T22:21:48.020Z" // Required if is_authenticated = true
+	},
+	// then the order item:
+  "order": {
+    // REQUIRED fields
+    "external_id": "order_id_from_your_database",
+    "created_at": "2022-10-30T22:21:48.020Z",
+    "domain_id": "website",
+    "subtotal_price": 15020, // revenue in cents without shipping & taxes (integer)
+		"total_price": 18731, // revenue in cents with shipping & taxes included (integer)
+
+    // optional fields
+    "updated_at": "2022-10-30T22:21:48.020Z", // used to control the override of existing order fields
+		"currency": "USD", // ISO currency, defaults to workspace settings if not provided
+    "cancelled_at": "2022-10-30T22:21:48.020Z", // ISO date of order cancellation
+    "cancel_reason": "order returned by customer", // reason of order cancellation
+		"discount_codes": ["code1", "code2"...], // array of discount codes. useful to attribute order to influencers with the channels mapping.
+		"items": [
+			// array of cart items
+			{
+				// REQUIRED fields
+				"external_id": "item_id_from_your_database",
+				"name": "Product A",
+				"product_external_id": "product_a",
+				"price": 12345, // unitary price (integer) in cents (i.e: $105.20 → 10520)
+				"quantity": 2,
+
+				// optional fields
+				"variant_external_id": "product_a_red",
+				"variant_title": "Product A color red",
+				"category": "category abc",
+				"sku": "XCVBN",
+				"brand": "Acme",
+				"updated_at": "2022-10-30T22:21:48.020Z", // used to control the override of existing item fields
+
+				// APPs specific fields for order items
+				"app_appname_mystring": "abc",
+				"app_appname_mynumber": 123.456
+			},
+			...
+		],
+
+		// APPs specific fields for orders
+		"app_appname_mystring": "abc",
+		"app_appname_mynumber": 123.456
+  }
+}
+```

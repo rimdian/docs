@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Rimdian API reference",
+    "description": "Rimdian provides 2 apis: a Data Collector API to import data & a Server API to manage your workspace and settings.",
     "license": {
       "name": "MIT"
     },
@@ -10,7 +10,10 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "http://collector-eu.rimdian.com"
+    },
+    {
+      "url": "http://api-eu.rimdian.com"
     }
   ],
   "security": [
@@ -19,6 +22,44 @@
     }
   ],
   "paths": {
+    "/data": {
+      "post": {
+        "description": "Post data to the Collector for asynchronous processing",
+        "requestBody": {
+          "description": "Plant to add to the store",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataImport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "plant response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plant"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/plants": {
       "get": {
         "description": "Returns all plants from the system that the user has access to",
@@ -132,10 +173,49 @@
   },
   "components": {
     "schemas": {
+      "DataImport": {
+        "required": ["workspace_id", "items"],
+        "type": "object",
+        "properties": {
+          "workspace_id": {
+            "description": "Workspace ID",
+            "type": "string"
+          },
+          "items": {
+            "description": "Array of items to import",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "kind": {
+                  "description": "Kind of item",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "workspace_id": "acme_workspace",
+          "items": [
+            {
+              "kind": "user",
+              "user": {
+                "external_id": "123",
+                "is_authenticated": true,
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-01T00:00:00Z",
+                "email": "test@website.com",
+                "first_name": "John",
+                "last_name": "Doe"
+              }
+            }
+          ]
+        }
+      },
       "Plant": {
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "type": "object",
         "properties": {
           "name": {
@@ -154,9 +234,7 @@
             "$ref": "#/components/schemas/Plant"
           },
           {
-            "required": [
-              "id"
-            ],
+            "required": ["id"],
             "type": "object",
             "properties": {
               "id": {
@@ -169,10 +247,7 @@
         ]
       },
       "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+        "required": ["error", "message"],
         "type": "object",
         "properties": {
           "error": {

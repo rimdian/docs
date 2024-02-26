@@ -1,0 +1,60 @@
+---
+title: 'Custom event'
+description: ''
+icon: arrow-pointer
+iconType: duotone
+---
+
+
+Custom event have some required fields:
+
+- `external_id`
+- `created_at`
+- `label`  i.e: download_ebook
+
+The `custom_event` item also requires to provide the minimum required `user` object. This is mandatory to self-heal the dataset if the `custom_event` is imported into the database before the `user` profile (out-of-order).
+
+If the `custom_event` happened during a user session, you can attach the `session` context to the item.
+
+Installed apps might have added additional fields to your orders. These fields are in the format: `app_appname_fieldname`
+
+```jsx
+
+{
+  "kind": "custom_event",
+
+	// user with minimum required fields is mandatory:
+	"user": {
+    "external_id": "user_id",
+    "created_at": "2022-10-30T22:21:48.020Z",
+    "is_authenticated": true,
+    "signed_up_at": "2022-10-30T22:21:48.020Z" // Required if is_authenticated = true
+	},
+
+	// then the custom_event item:
+  "custom_event": {
+    // REQUIRED fields
+    "external_id": "order_id_from_your_database",
+    "created_at": "2022-10-30T22:21:48.020Z",
+		"label": "download_ebook",
+    // optional fields
+    "domain_id": "website",
+    "updated_at": "2022-10-30T22:21:48.020Z", // used to control the override of existing order fields
+		"string_value": "Book abc",
+		"number_value": 123.456, // the number_value is also available in the reports as SUM and AVG (average)
+		"boolean_value": true,
+		"non_interactive": false, // if true, the custom event won't affect the session bounce rate
+
+		// APPs specific fields for custom events
+		"app_appname_mystring": "abc",
+		"app_appname_mynumber": 123.456
+  },
+
+	// optional session item with at least the mandatory fields:
+	"session": {
+    "external_id": "session_id",
+		"domain_id": "website", // see the configured Domains in your workspace
+    "created_at": "2022-10-30T22:21:48.020Z"
+	}
+}
+```

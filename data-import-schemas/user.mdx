@@ -1,0 +1,65 @@
+---
+title: 'User'
+description: ''
+icon: user
+iconType: duotone
+---
+
+Users have some required fields:
+
+- `external_id`
+- `created_at`
+- `is_authenticated` , indicates whether or not the `user_id` comes from your database
+- `signed_up_at` , required if `is_authenticated` is true
+
+For authenticated users, the `signed_up_at` date field is used to know when the user signed up. 
+
+We then compare this date with the `created_at` field which is the first time this user visited your business (website, app…), to compute its “time-to-conversion”.
+
+When you provide an email address to a user profile, the md5/sha1/sha256 hash are automatically computed, you don’t need to provide them.
+
+Installed apps might have added additional fields to your user profiles. These fields are in the format: `app_appname_fieldname`
+
+```jsx
+
+{
+  "kind": "user",
+  "user": {
+    // REQUIRED fields
+    "external_id": "user_id",
+    "created_at": "2022-10-30T22:21:48.020Z",
+    "is_authenticated": true,
+    "signed_up_at": "2022-10-30T22:21:48.020Z", // Required if is_authenticated = true
+
+    // optional fields
+    "timezone": "Europe/Paris", // ISO timezone, defaults to workspace settings if not provided
+    "language": "fr", // ISO language code, defaults to workspace settings if not provided
+    "country": "FR", // ISO country code, defaults to workspace settings if not provided
+    "consent_all": true, // true if user accepts all consentments
+		"consent_personalization": true, // true if user accepts to be tracked individually to activate onsite personalization
+		"consent_marketing": true, // true if user accepts marketing targeting
+		"latitude": 123.123,
+		"longitude": 123.123,
+		"first_name": "John",
+		"last_name": "Doe",
+		"gender": "male", // male or female
+		"birthday": "1980-01-01", // YYYY-MM-DD
+		"photo_url": "https://photo-url.com/photo.jpg", // URL of the user profile photo
+		"email": "john@doe.com",
+		"email_md5": "xxxxx", // MD5 hash of the email address
+		"email_sha1": "xxxxx", // SHA1 hash of the email address
+		"email_sha256": "xxxxx", // SHA256 hash of the email address
+		"telephone": "+33601010101", // international E164 format
+		"address_line_1": "abc",
+		"address_line_2": "abc",
+		"city": "Paris",
+		"region": "Ile de France",
+		"postal_code": "75000",
+		"state": "abc",
+
+		// APPs specific fields
+		"app_appname_mystring": "abc",
+		"app_appname_mynumber": 123.456
+  }
+}
+```

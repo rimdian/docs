@@ -1,0 +1,8 @@
+---
+title: 'Import historical data'
+openapi: 'POST /data'
+---
+
+<Tip>Don't forget to [generate your access token](/api-references/account-login) to use this endpoint.</Tip>
+
+The items array should contain the historical data you want to import. Each item will be queued and processed individually, and should respect the format of the [data schemas](/data-schemas/introduction).

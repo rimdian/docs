@@ -1,0 +1,56 @@
+---
+title: 'Session'
+description: ''
+icon: hourglass
+iconType: duotone
+---
+
+Sessions are like buckets of user interactions (`pageviews`, `cart`, `order`…), and they have a source of trafic (i.e: Facebook, Google, physical store…) that is controlled by the `utm_source` + `utm_medium` fields.
+
+Sessions are the building blocks of marketing multi-touch attribution.
+
+When a user place an order on your website, Rimdian will gather all the sessions that contributed to this order to “attribute” them some credits for that conversion.
+
+The `session` item also requires to provide the minimum required `user` object. This is mandatory to self-heal the dataset if the `session` is imported into the database before the `user` profile (out-of-order).
+
+Installed apps might have added additional fields to your sessions. These fields are in the format: `app_appname_fieldname`
+
+```jsx
+
+{
+  "kind": "session",
+	// user with minimum required fields is mandatory:
+	"user": {
+    "external_id": "user_id",
+    "created_at": "2022-10-30T22:21:48.020Z",
+    "is_authenticated": true,
+    "signed_up_at": "2022-10-30T22:21:48.020Z" // Required if is_authenticated = true
+	},
+	// then the session item:
+  "session": {
+    // REQUIRED fields
+    "external_id": "session_id",
+		"domain_id": "website", // see the configured Domains in your workspace
+    "created_at": "2022-10-30T22:21:48.020Z",
+
+    // optional fields
+		"updated_at": "2022-10-30T22:21:48.020Z", // used to control the override of existing session fields
+    "device_external_id": "xxx", // attach the session to a specific user device
+		"timezone": "Europe/Paris", // defaults to workspace timezone if not provided
+    "landing_page": "https://your-website.com/landing-page",
+		"referrer": "https://referrer-website.com/page",
+
+    "utm_source": "google.com",
+    "utm_medium": "ads",
+    "utm_campaign": "christmas",
+    "utm_content": "banner1",
+    "utm_term": "keyword1",
+    "utm_id": "xxx",
+    "utm_id_from": "gclid", // gclid / fbclid / rmd
+
+		// APPs specific fields
+		"app_appname_mystring": "abc",
+		"app_appname_mynumber": 123.456
+  }
+}
+```
