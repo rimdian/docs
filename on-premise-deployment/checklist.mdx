@@ -5,4 +5,47 @@ description: ''
 icon: list-check
 iconType: duotone
 ---
-TODO
+
+A Rimdian deployment is composed of the following components:
+
+- **Rimdian Collector**: The collector that collects data from the JavaScript SDK & external source and sends it to the Task Queue. Distributed as a stateless Docker image.
+- **Rimdian Server**: The server that hosts the main Rimdian engine, Console & API. Distributed as a stateless Docker image.
+- **[Google Cloud Task Queue](https://cloud.google.com/tasks)**: The queue that buffers the data from the collector and sends it to the Rimdian Server. Service provided by Google Cloud.
+- **[SingleStoreDB](https://www.singlestore.com/)**: The database that stores the data from the Rimdian Server. Can be deployed on-premise or in the cloud with a free tier.
+- **[Cube.js](https://cube.dev/)**: The analytics engine that powers the Rimdian Server. Distributed as [Docker image](https://github.com/rimdian/cube) or in the cloud.
+
+## Rimdian Collector
+
+The Collector is a **stateless** Docker image that can be deployed on any infrastructure that supports Docker.
+
+You can scale it horizontally by deploying multiple instances of the collector.
+
+It also acts as a 1st party tracking server, that rewrites the cookies server-side to prevent tracking blockers.
+
+For that reason, if your website is hosted at `www.example.com`, you should deploy the collector on a sub-domain like `go.example.com`.
+
+<Tip>An URL shortener will be added very soon to handle your digital marketing campaigns redirections (i.e: click from a newsletter...). So choose your sub-domain wisely.</Tip>
+
+## Rimdian Server
+
+The Server is a **stateless** Docker image that can be deployed on any infrastructure that supports Docker.
+
+You can scale it horizontally by deploying multiple instances of the server. However it's important to activate an **auto-scaler** to handle the traffic spikes.
+
+<Tip>If your Rimdian Servers can't keep up with the work, the Task Queue will slow down the processing rate and the buffer will grow.</Tip>
+
+## SingleStoreDB
+
+If you are a small company or a startup, you can use the free tier of SingleStoreDB and host it yourself on a single server.
+
+If you are a larger company, you can use the cloud version of SingleStoreDB or host it on your own infrastructure.
+
+Big virtual machines are very expensive in the cloud and don't deliver the same performance as a dedicated server. For that reason we recommend you to deploy SingleStoreDB on bare-metal servers while keeping the Collector & Rimdian Server in the cloud.
+
+<Tip>A 24-core server (Intel Xeon Gold) with 128GB of RAM & 2x1TB NVMe SSDs costs around [$400/month with OVH](https://www.ovhcloud.com/en/bare-metal/scale/scale-i2/). Bandwidth is also free with OVH, which is not the case with cloud providers.</Tip>
+
+## Cube.js
+
+Cube.js can also run as a **stateless** Docker image with in-memory cache, because SingleStoreDB is built to handle massive real-time analytics workloads.
+
+[Cube Cloud](https://cube.dev/product/why-cube-cloud) is also available if you don't want to manage the infrastructure yourself.
