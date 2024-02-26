@@ -8,7 +8,7 @@ iconType: duotone
 
 Apps can [register data hooks](/apps-development/app-manifest-reference#data-hook) that will be called by Rimdian when specific events occur.
 
-As opposed to [tasks](/apps-development/tasks) that are executed in the background, data hooks are called in real-time and are expected to return a response within a few seconds.
+As opposed to [tasks](/apps-development/tasks) that are executed in the background, data hooks are called in real-time in the [data processing pipeline](/data-lifecycle#data-pipeline) and are expected to return a response within a few seconds.
 
 A common use case for data hooks is to enrich or transform data before it is inserted by Rimdian, or to forward data to a third-party system.
 

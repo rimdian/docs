@@ -37,3 +37,12 @@ There are two types of apps:
 
 - **Public apps** - Apps that are available to all Rimdian users. They are listed in the upcoming App Store and can be installed by anyone.
 - **Private apps** - Apps that are only available to your organization. They are not listed in the App Store and can only be installed by uploading their [manifest.json](/apps-development/app-manifest-reference) file.
+
+## Apps states
+
+An app can be in one of the following states:
+
+- **Initializing** - The app has been installed, its eventual tasks, hooks, extra columns, and tables are created but not enabled yet. In this state the app shows you a setup wizard to configure it.
+- **Active** - The app is running and its tasks & hooks are active.
+- **Stopped** - The app is stopped and its tasks & hooks are disabled, but its extra columns and tables are still available with their data.
+- **Deleted** - The app has been deleted and its tasks, hooks, extra columns, and tables are removed.
