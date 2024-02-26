@@ -5,4 +5,82 @@ description: ''
 icon: webhook
 iconType: duotone
 ---
- TODO
+
+Apps can [register data hooks](/apps-development/app-manifest-reference#data-hook) that will be called by Rimdian when specific events occur.
+
+As opposed to [tasks](/apps-development/tasks) that are executed in the background, data hooks are called in real-time and are expected to return a response within a few seconds.
+
+A common use case for data hooks is to enrich or transform data before it is inserted by Rimdian, or to forward data to a third-party system.
+
+## Data hooks types
+
+Rimdian supports the following data hook types:
+
+- `on_success` - called when a data log item is successfully processed (created, updated...).
+- `on_validation` - called when a data log item is validated (before it is processed), and can be used to enrich or transform the data item.
+
+## Hook on_success
+
+When a data hook is called, Rimdian will send a POST request to your app `webhook_endpoint` with the following payload:
+
+```json
+{
+    "api_endpoint": "https://RIMDIAN_API_ENDPOINT",
+    "collector_endpoint": "https://RIMDIAN_COLLECTOR_ENDPOINT",
+    "workspace_id": "acme_workspace1",
+    "app_id": "app_myapp",
+    "app_state": {
+        "key1": "value1",
+        "key2": "value2"
+    },
+    "kind": "data_hook",
+    "data_hook": {
+        "id": "app_myapp_onsuccess",
+        "name": "Forward data on success",
+        "on": "on_success",
+        "log_id": "1234567890",
+        "log_kind": "order",
+        "log_action": "create",
+        "log_item": "{ ... JSON escaped item ... }",
+        "log_item_id": "xxxxxxxxx",
+        "log_item_external_id": "order_123",
+        "user": {
+            "id": "xxxxxx",
+            "external_id": "user_123",
+            "is_authenticated": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "email": "john@website.com",
+            "first_name": "John",
+            "last_name": "Doe",
+            "phone": "+1234567890",
+            "country": "US",
+            "language": "en",
+            "timezone": "America/New_York",
+            ... other user properties
+        }
+    }
+}
+```
+
+The full `user` object will be included if the data log item is associated with a user.
+
+The data `log_item` is the JSON-escaped string value of the item sent to the Collector.
+
+### Expected response
+
+<Tip>It is important to return a response within **7 seconds**. If the response is not received within a few seconds, the data hook will be retried 3 times before being dropped!</Tip>
+
+```json
+{
+    "is_done": true,
+    "is_error": false,
+    "message": "done"
+}
+```
+
+Returning `is_done` as `false` will cause the data hook to be retried.
+
+## Hook on_validation
+
+TODO

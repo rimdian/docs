@@ -5,4 +5,87 @@ description: ''
 icon: check-double
 iconType: duotone
 ---
- TODO
+
+Apps can [register tasks](/apps-development/app-manifest-reference#task) that will be executed by Rimdian at a specific interval or manually. This is useful for running background jobs, such as importing or exporting data to an external system.
+
+A task can spin up to 10 workers running in **parallel**. The worker `0` is the main worker and the others are secondary workers. The main worker is the one that will be called when the task is launched.
+
+Each worker has a JSON state, that can be used to store anything you need to keep track of the task progress.
+
+When a task is launched, your app `webhook_endpoint` will be called with the following payload:
+
+```json
+{
+    "api_endpoint": "https://RIMDIAN_API_ENDPOINT",
+    "collector_endpoint": "https://RIMDIAN_COLLECTOR_ENDPOINT",
+    "workspace_id": "acme_workspace1",
+    "app_id": "app_myapp",
+    "app_state": {
+        "key1": "value1",
+        "key2": "value2"
+    },
+    "kind": "task_exec_worker",
+    "task_exec_worker": {
+        "task_kind": "app_myapp_task1",
+        "task_name": "My Task 1",
+        "task_exec_id": "xxxxxxxx",
+        "task_exec_created_at": "2024-01-01T00:00:00Z",
+        "worker_id": 0,
+        "worker_state": {
+            "key1": "value1",
+            "key2": "value2"
+        },
+        "retry_count": 0
+    }
+}
+```
+
+Your response to the webhook allows you to:
+
+- Mark the worker as done or not
+- Return a message (optional)
+- Return an error (optional)
+- Update the current worker state (optional), useful to keep track of the worker progress (pagination...)
+- Mutate the app state (optional)
+- Return a list of data items to import (optional)
+- Delay the next request (optional), useful if you interact with external systems that have rate limits like the Amazon Seller API
+
+
+**The webhook will timeout after 20 seconds.**
+
+Example of a response for a job that is not yet done before 20 secs:
+
+```json
+{
+    "is_done": false,
+    "updated_worker_state": {
+        "key1": "value1",
+        "key2": "value2"
+    },
+    "app_state_mutations": [
+        {
+            "operation": "set",
+            "key": "key1",
+            "value": "value1"
+        },
+        ... more mutations ...
+    ],
+    "items_to_import": [
+        {
+            "kind": "user",
+            "user": {
+                "external_id": "user1",
+                "is_authenticated": false,
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-01T00:00:00Z",
+                "email": "john@website.com"
+            }
+        },
+        ... more items ...
+    ],
+    "worker_id": 0,
+    "is_error": false,
+    "message": "Task is still running",
+    "delay_next_request_in_secs": 10
+}
+```
