@@ -23,19 +23,19 @@ Installed apps might have added additional fields to your user profiles. These f
 ```jsx
 
 {
-  "kind": "user",
-  "user": {
-    // REQUIRED fields
-    "external_id": "user_id",
-    "created_at": "2022-10-30T22:21:48.020Z",
-    "is_authenticated": true,
-    "signed_up_at": "2022-10-30T22:21:48.020Z", // Required if is_authenticated = true
+  	"kind": "user",
+  	"user": {
+		// REQUIRED fields
+		"external_id": "user_id",
+		"created_at": "2022-10-30T22:21:48.020Z",
+		"is_authenticated": true,
+		"signed_up_at": "2022-10-30T22:21:48.020Z", // Required if is_authenticated = true
 
-    // optional fields
-    "timezone": "Europe/Paris", // ISO timezone, defaults to workspace settings if not provided
-    "language": "fr", // ISO language code, defaults to workspace settings if not provided
-    "country": "FR", // ISO country code, defaults to workspace settings if not provided
-    "consent_all": true, // true if user accepts all consentments
+		// optional fields
+		"timezone": "Europe/Paris", // ISO timezone, defaults to workspace settings if not provided
+		"language": "fr", // ISO language code, defaults to workspace settings if not provided
+		"country": "FR", // ISO country code, defaults to workspace settings if not provided
+		"consent_all": true, // true if user accepts all consentments
 		"consent_personalization": true, // true if user accepts to be tracked individually to activate onsite personalization
 		"consent_marketing": true, // true if user accepts marketing targeting
 		"latitude": 123.123,
@@ -57,9 +57,9 @@ Installed apps might have added additional fields to your user profiles. These f
 		"postal_code": "75000",
 		"state": "abc",
 
-		// APPs specific fields
+		// APPs extra columns
 		"app_appname_mystring": "abc",
 		"app_appname_mynumber": 123.456
-  }
+	}
 }
 ```

@@ -21,40 +21,40 @@ Installed apps might have added additional fields to your orders. These fields a
 ```jsx
 
 {
-  "kind": "custom_event",
+ 	"kind": "custom_event",
 
 	// user with minimum required fields is mandatory:
 	"user": {
-    "external_id": "user_id",
-    "created_at": "2022-10-30T22:21:48.020Z",
-    "is_authenticated": true,
-    "signed_up_at": "2022-10-30T22:21:48.020Z" // Required if is_authenticated = true
+		"external_id": "user_id",
+		"created_at": "2022-10-30T22:21:48.020Z",
+		"is_authenticated": true,
+		"signed_up_at": "2022-10-30T22:21:48.020Z" // Required if is_authenticated = true
 	},
 
 	// then the custom_event item:
-  "custom_event": {
-    // REQUIRED fields
-    "external_id": "order_id_from_your_database",
-    "created_at": "2022-10-30T22:21:48.020Z",
-		"label": "download_ebook",
-    // optional fields
-    "domain_id": "website",
-    "updated_at": "2022-10-30T22:21:48.020Z", // used to control the override of existing order fields
+ 	"custom_event": {
+		// REQUIRED fields
+		"external_id": "order_id_from_your_database",
+		"created_at": "2022-10-30T22:21:48.020Z",
+			"label": "download_ebook",
+		// optional fields
+		"domain_id": "website",
+		"updated_at": "2022-10-30T22:21:48.020Z", // used to control the override of existing order fields
 		"string_value": "Book abc",
 		"number_value": 123.456, // the number_value is also available in the reports as SUM and AVG (average)
 		"boolean_value": true,
 		"non_interactive": false, // if true, the custom event won't affect the session bounce rate
 
-		// APPs specific fields for custom events
+		// APPs extra columns
 		"app_appname_mystring": "abc",
 		"app_appname_mynumber": 123.456
-  },
+ 	},
 
 	// optional session item with at least the mandatory fields:
 	"session": {
-    "external_id": "session_id",
+		"external_id": "session_id",
 		"domain_id": "website", // see the configured Domains in your workspace
-    "created_at": "2022-10-30T22:21:48.020Z"
+		"created_at": "2022-10-30T22:21:48.020Z"
 	}
 }
 ```

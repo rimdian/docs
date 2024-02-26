@@ -16,41 +16,42 @@ The `session` item also requires to provide the minimum required `user` object. 
 Installed apps might have added additional fields to your sessions. These fields are in the format: `app_appname_fieldname`
 
 ```jsx
-
 {
-  "kind": "session",
+  	"kind": "session",
+
 	// user with minimum required fields is mandatory:
 	"user": {
-    "external_id": "user_id",
-    "created_at": "2022-10-30T22:21:48.020Z",
-    "is_authenticated": true,
-    "signed_up_at": "2022-10-30T22:21:48.020Z" // Required if is_authenticated = true
+		"external_id": "user_id",
+		"created_at": "2022-10-30T22:21:48.020Z",
+		"is_authenticated": true,
+		"signed_up_at": "2022-10-30T22:21:48.020Z" // Required if is_authenticated = true
 	},
-	// then the session item:
-  "session": {
-    // REQUIRED fields
-    "external_id": "session_id",
-		"domain_id": "website", // see the configured Domains in your workspace
-    "created_at": "2022-10-30T22:21:48.020Z",
 
-    // optional fields
+	// then the session object itself:
+  	"session": {
+		// REQUIRED fields
+		"external_id": "session_id",
+		"domain_id": "website", // see the configured Domains in your workspace
+		"created_at": "2022-10-30T22:21:48.020Z",
+
+		// optional fields
 		"updated_at": "2022-10-30T22:21:48.020Z", // used to control the override of existing session fields
-    "device_external_id": "xxx", // attach the session to a specific user device
+		"device_external_id": "xxx", // attach the session to a specific user device
 		"timezone": "Europe/Paris", // defaults to workspace timezone if not provided
-    "landing_page": "https://your-website.com/landing-page",
+		"landing_page": "https://your-website.com/landing-page",
 		"referrer": "https://referrer-website.com/page",
 
-    "utm_source": "google.com",
-    "utm_medium": "ads",
-    "utm_campaign": "christmas",
-    "utm_content": "banner1",
-    "utm_term": "keyword1",
-    "utm_id": "xxx",
-    "utm_id_from": "gclid", // gclid / fbclid / rmd
+		"utm_source": "google.com",
+		"utm_medium": "ads",
+		"utm_campaign": "christmas",
+		"utm_content": "banner1",
+		"utm_term": "keyword1",
+		"utm_id": "xxx",
+		"utm_id_from": "gclid", // gclid / fbclid / rmd
 
-		// APPs specific fields
+		// APPs extra columns
 		"app_appname_mystring": "abc",
 		"app_appname_mynumber": 123.456
-  }
+	}
 }
 ```
