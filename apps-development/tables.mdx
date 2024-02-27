@@ -5,4 +5,333 @@ description: ''
 icon: database
 iconType: duotone
 ---
- TODO
+
+Apps can create custom tables to store specific data.
+
+## Usage
+
+In your app [manifest.json](/app-manifest-reference), you can define new tables adding a `app_tables` property like this:
+
+```json
+...
+  "app_tables": [
+    {
+      "name": "appx_myapp_table_1",
+      "description": "Example of extra table",
+      "shard_key": ["id"],
+      "unique_key": ["id"],
+      "sort_key": ["created_at"],
+      "columns": [
+            {
+                "name": "id",
+                "type": "varchar",
+                "size": 64,
+                "description": "id",
+                "is_required": true
+            },
+            {
+                "name": "external_id",
+                "type": "varchar",
+                "size": 256,
+                "description": "external_id",
+                "is_required": true
+            },
+            {
+                "name": "created_at",
+                "type": "datetime",
+                "description": "created_at",
+                "is_required": true
+            },
+            {
+                "name": "updated_at",
+                "type": "datetime",
+                "description": "updated_at",
+                "is_required": false,
+                "hide_in_analytics": true
+            },
+            {
+                "name": "user_id",
+                "type": "varchar",
+                "size": 64,
+                "description": "user_id",
+                "is_required": true,
+                "hide_in_analytics": true
+            },
+            {
+                "name": "merged_from_user_id",
+                "type": "varchar",
+                "size": 64,
+                "description": "merged_from_user_id",
+                "is_required": false,
+                "hide_in_analytics": true
+            },
+            {
+                "name": "fields_timestamp",
+                "type": "json",
+                "description": "fields_timestamp",
+                "is_required": true,
+                "hide_in_analytics": true
+            },
+            {
+                "name": "db_created_at",
+                "type": "timestamp",
+                "size": 6,
+                "default_timestamp": "CURRENT_TIMESTAMP(6)",
+                "description": "db_created_at",
+                "is_required": true,
+                "hide_in_analytics": true
+            },
+            {
+                "name": "db_updated_at",
+                "type": "timestamp",
+                "size": 6,
+                "default_timestamp": "CURRENT_TIMESTAMP(6)",
+                "extra_definition": "ON UPDATE CURRENT_TIMESTAMP",
+                "description": "db_created_at",
+                "is_required": true,
+                "hide_in_analytics": true
+            },
+            {
+                "name": "column_varchar",
+                "type": "varchar",
+                "size": 128,
+                "description": "Example of varchar column",
+                "is_required": false
+            },
+            {
+                "name": "column_number",
+                "type": "number",
+                "description": "Example of number column",
+                "is_required": false
+            },
+            {
+                "name": "column_boolean",
+                "type": "boolean",
+                "description": "Example of boolean column",
+                "is_required": false
+            },
+            {
+                "name": "column_datetime",
+                "type": "datetime",
+                "description": "Example of datetime column",
+                "is_required": false
+            },
+            {
+                "name": "column_json",
+                "type": "json",
+                "description": "Example of json column",
+                "is_required": false
+            }
+        ],
+        "joins": [
+            {
+                "external_table": "appx_myapp_table_2",
+                "relationship": "has_one",
+                "local_column": "external_id",
+                "external_column": "table1_external_id"
+            }
+        ],
+        "indexes": [
+            {
+                "name": "index_column_varchar",
+                "columns": ["column_varchar"]
+            }
+        ]
+    }
+  ]
+...
+```
+
+The table columns should follow the [Table Column](/apps-development/app-manifest-reference#table-column) schema.
+
+<Tip>App tables are removed from the database when the apps are deleted.</Tip>
+
+## Specific columns
+
+Every app table should have the following columns:
+
+```json
+    ...
+    "columns": [
+        {
+          "name": "id",
+          "type": "varchar",
+          "size": 64,
+          "description": "id",
+          "is_required": true
+        },
+        {
+          "name": "external_id",
+          "type": "varchar",
+          "size": 256,
+          "description": "external_id",
+          "is_required": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "description": "created_at",
+          "is_required": true
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "description": "updated_at",
+          "is_required": false,
+          "hide_in_analytics": true
+        },
+        {
+          "name": "fields_timestamp",
+          "type": "json",
+          "description": "fields_timestamp",
+          "is_required": true,
+          "hide_in_analytics": true
+        },
+        {
+          "name": "db_created_at",
+          "type": "timestamp",
+          "size": 6,
+          "default_timestamp": "CURRENT_TIMESTAMP(6)",
+          "description": "db_created_at",
+          "is_required": true,
+          "hide_in_analytics": true
+        },
+        {
+          "name": "db_updated_at",
+          "type": "timestamp",
+          "size": 6,
+          "default_timestamp": "CURRENT_TIMESTAMP(6)",
+          "extra_definition": "ON UPDATE CURRENT_TIMESTAMP",
+          "description": "db_created_at",
+          "is_required": true,
+          "hide_in_analytics": true
+        },
+        ...
+    ]
+    ...
+```
+
+The `id` and `external_id` columns are used to identify the records. 
+
+The `external_id` is the ID of the record in the external system, and the `id` is a SHA1 hash of the `external_id` used by Rimdian.
+
+The `created_at` and `updated_at` columns are used to track the creation and update of the records in the external system. 
+
+The `fields_timestamp` column is used to track the changes in the record fields. 
+
+The `db_created_at` and `db_updated_at` columns are used to track the creation and update of the records in the database.
+
+### User activity
+
+In order to join the table records to the users activity, the `user_id` & `merged_from_user_id` columns should be added to the table.
+
+When user profiles are merged, the `user_id` column is updated with the new user ID, and the `merged_from_user_id` column is updated with the old user ID.
+
+```json
+    ...
+    "columns": [
+        ...
+        {
+          "name": "user_id",
+          "type": "varchar",
+          "size": 64,
+          "description": "user_id",
+          "is_required": true,
+          "hide_in_analytics": true
+        },
+        {
+          "name": "merged_from_user_id",
+          "type": "varchar",
+          "size": 64,
+          "description": "merged_from_user_id",
+          "is_required": false,
+          "hide_in_analytics": true
+        },
+        ...
+    ]
+    ...
+```
+
+## Shard key
+
+The `shard_key` is used to distribute the records across the database shards.
+
+The records are grouped by the `shard_key` and stored in the same shard.
+
+It should contain at least one column.
+
+If you define a `user_id` column, it's recommended to use it as the shard_key. This way the records are stored in the same shard as the user activity.
+
+I.e: 
+
+```json
+    ...
+    "shard_key": ["user_id"],
+    ...
+```
+
+## Unique key
+
+The `unique_key` is used to ensure that the records are unique in the table.
+
+It should contain at least the columns used in the `shard_key`.
+
+I.e: 
+
+```json
+    ...
+    "unique_key": ["id", "user_id"],
+    ...
+```
+
+## Sort key
+
+The `sort_key` is used to store the records in the database in a specific order.
+
+It should contain at least one column.
+
+If the data is time-based, it's recommended to use the `created_at` column as the sort_key. This way the records are stored in the database in the same order as they were created.
+
+I.e: 
+
+```json
+    ...
+    "sort_key": ["created_at"],
+    ...
+```
+
+## Joins
+
+By declaring relationships between the app tables and other tables, the Cube.js semantic layer can join the app tables with other tables.
+
+```json
+    ...
+    "joins": [
+        {
+          "external_table": "appx_myapp_table_2",
+          "relationship": "has_one",
+          "local_column": "external_id",
+          "external_column": "table1_external_id"
+        }
+    ]
+    ...
+```
+
+Relationships can be defined as `has_one`, `has_many`, or `belongs_to`.
+
+## Indexes
+
+You can define indexes to speed up your SQL queries. 
+
+Indexes are created as HASH indexes. It means it only works for equality comparisons.
+
+```json
+    ...
+    "indexes": [
+        {
+          "name": "index_column_varchar",
+          "columns": ["column_varchar"]
+        }
+    ]
+    ...
+```

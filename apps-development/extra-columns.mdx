@@ -5,4 +5,32 @@ description: ''
 icon: line-columns
 iconType: duotone
 ---
- TODO
+
+Apps can extend existing tables with extra columns to store additional data.
+
+## Usage
+
+In your app [manifest.json](/app-manifest-reference), you can define extra columns for a table by adding a `extra_columns` property like this:
+
+```json
+...
+  "extra_columns": [
+    {
+        "kind": "user",
+        "columns": [
+            {
+                "name": "appx_myapp_column1",
+                "type": "varchar",
+                "size": 128,
+                "is_required": false,
+                "description": "Example of extra column in the 'user' table"
+            }
+        ]
+    }
+  ]
+...
+```
+
+The extra columns should follow the [Table Column](/apps-development/app-manifest-reference#table-column) schema.
+
+<Tip>Extra columns are removed from the database when the apps are deleted.</Tip>
