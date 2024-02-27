@@ -254,7 +254,7 @@ iconType: duotone
 </ParamField>
 
 <ParamField path="relationship" type="enum">
-    **Relationship** - The relationship between the tables. Values: `has_one`, `has_many` or `belongs_to`.
+    **Relationship** - The relationship between the tables. Values: `one_to_one`, `one_to_many` or `many_to_one`.
 </ParamField>
 
 <ParamField path="local_column" type="string">
@@ -370,7 +370,7 @@ iconType: duotone
       "joins": [
         {
           "external_table": "appx_myapp_table_2",
-          "relationship": "has_one",
+          "relationship": "one_to_many",
           "local_column": "external_id",
           "external_column": "table1_external_id"
         }
