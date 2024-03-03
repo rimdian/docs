@@ -28,7 +28,7 @@ The `API Server` does the following **for every data point**:
 The raw data is saved in the `Database` to avoid any loss.
 </Step>
 <Step title="Enrich or reject the data">
-Apps who "subscribe" to the `before_validation` hook are called to enrich or reject the data (e.g: IP-to-location, IP filtering…).
+Apps who "subscribe" to the `on_validation` hook are called to enrich or reject the data (e.g: IP-to-location, IP filtering…).
 </Step>
 <Step title="Validate the data">
 The payload is validated against the Rimdian tables schemas & apps schemas.

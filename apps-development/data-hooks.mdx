@@ -17,7 +17,7 @@ A common use case for data hooks is to enrich or transform data before it is ins
 Rimdian supports the following data hook types:
 
 - `on_success` - called when a data log item is successfully processed (created, updated...).
-- `before_validation` - called when a data log item about to be validated (before it is processed), and can be used to enrich/transform/reject the data item.
+- `on_validation` - called when a data log item about to be validated (before it is processed), and can be used to enrich/transform/reject the data item.
 
 ## Hook on_success
 
@@ -81,6 +81,6 @@ The data `log_item` is the JSON-escaped string value of the item sent to the Col
 
 Returning `is_done` as `false` will cause the data hook to be retried.
 
-## Hook before_validation
+## Hook on_validation
 
 TODO
