@@ -301,7 +301,7 @@ Don’t forget to also send the shopping cart concerned by that order and provid
 
 To maintain consistency between your domains and subdomains, you can provide a list of the concerned domains in the config of the SDK.
 
-By doing this, every time a user will go from `https://**blog**.website.com` to `https://**shop**.website.com` , its user ID & device ID will be passed into the URL of the destination page and prevent the SDK counting the same user twice and start a new session.
+By doing this, every time a user will go from `https://blog.website.com` to `https://shop.website.com` , its user ID & device ID will be passed into the URL of the destination page and prevent the SDK counting the same user twice and start a new session.
 
 Example of configuration:
 
@@ -312,7 +312,7 @@ Rimdian.init({
   host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
 
   // we specify blog.website.com here
-  cross_domains: ['**blog**.yourwebsite.com'] 
+  cross_domains: ['blog.yourwebsite.com'] 
 });
 
 // configuration for blog.website.com
@@ -321,7 +321,7 @@ Rimdian.init({
   host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
 
   // we specify shop.website.com here
-  cross_domains: ['**shop**.yourwebsite.com'] 
+  cross_domains: ['shop.yourwebsite.com'] 
 });
 ```
 
