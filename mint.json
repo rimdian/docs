@@ -40,7 +40,13 @@
       "url": "api-references"
     }
   ],
-  "anchors": [],
+  "anchors": [
+    {
+      "name": "Roadmap",
+      "icon": "angles-right",
+      "url": "about"
+    }
+  ],
   "navigation": [
     {
       "group": "Get Started",
@@ -56,12 +62,21 @@
       ]
     },
     {
+      "group": "Featured apps",
+      "pages": [
+        "apps/overview",
+        "apps/google-ads-clicks",
+        "apps/google-ads-enhanced-conversions",
+        "apps/meta-conversions-api",
+        "apps/shopify"
+      ]
+    },
+    {
       "group": "Integration",
       "pages": [
         "integration/overview",
         "integration/workspace-configuration",
-        "integration/javascript-sdk",
-        "integration/shopify"
+        "integration/javascript-sdk"
       ]
     },
     {
@@ -122,6 +137,10 @@
         "api-references/server/app-exec-query",
         "api-references/server/app-stop"
       ]
+    },
+    {
+      "group": "About",
+      "pages": ["about/roadmap"]
     }
   ],
   "footerSocials": {

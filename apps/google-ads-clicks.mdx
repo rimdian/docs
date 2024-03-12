@@ -1,0 +1,37 @@
+---
+title: 'Google Ads Clicks'
+sidebarTitle: 'Google Ads Clicks'
+description: ''
+icon: google
+iconType: duotone
+---
+
+## Why?
+
+All the traffic sent by Google Ads to your website is tracked with a `gclid` URL parameter instead of the classic `utm` parameters (utm_source / medium / campaign / content / term).
+
+With the absence of utm parameters, you won't be able to measure the performance of your Google Ads campaigns.
+
+## Solution
+
+When a user clicks on a Google Ads ad, the `gclid` parameter is added to the URL. This parameter is automatically collected by Rimdian and stored with each web session.
+
+The app uses the Google Ads API to pull the campaign details for each of the `gclid` parameters collected, and updates the corresponding web session with the campaign details.
+
+## How?
+
+<Steps>
+  <Step title="Install the app">
+    Install the Google Ads Clicks app in your Rimdian workspace & connect your Google Ads account.
+    </Step>
+    <Step title="Google Ads sync">
+    Periodically, the app will sync the `gclid` parameters with the Google Ads API to pull the campaign details for each of the `gclid` parameters collected.
+    </Step>
+    <Step title="Session update">
+    When a gclid parameter is matched, the session utm_source, utm_medium, utm_campaign, utm_content, utm_term are updated with the Google Ads campaign details.
+    </Step>
+    <Step title="Clicks metadatas">
+    All the clicks metadatas are also stored in a dedicated table (matching keywords, search queries, cpc...) for further analysis.
+    </Step>
+</Steps>
+
