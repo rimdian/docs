@@ -1,0 +1,17 @@
+---
+title: 'Self-hosted deployment overview'
+sidebarTitle: 'Overview'
+description: ''
+icon: list-check
+iconType: duotone
+---
+
+A Rimdian deployment is composed of the following components:
+
+- **[Rimdian Collector](/self-hosted-deployment/collector)**: The collector that collects data from the JavaScript SDK & external source and sends it to the Task Queue. Distributed as a stateless Docker image.
+- **[Rimdian Server](/self-hosted-deployment/server)**: The server that hosts the main Rimdian engine, Console & API. Distributed as a stateless Docker image.
+- **[Google Cloud Task Queue](/self-hosted-deployment/google-task-queue)**: The queue that buffers the data from the collector and sends it to the Rimdian Server. Service provided by Google Cloud.
+- **[SingleStoreDB](/self-hosted-deployment/singlestore-db)**: The database that stores the data from the Rimdian Server. Can be deployed on-premise or in the cloud with a free tier.
+- **[Cube.js](/self-hosted-deployment/cube-js)**: The analytics engine that powers the Rimdian Server. Distributed as [Docker image](https://github.com/rimdian/cube) or in the cloud.
+
+At first sight it may seem like a lot of components, but only the **Collector** & the **Server** have to be deployed by you. The rest of the components can be provided as managed services if you don't want to deploy them yourself.

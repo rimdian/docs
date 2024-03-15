@@ -36,6 +36,10 @@
       "url": "data-import-schemas"
     },
     {
+      "name": "Self-hosted deployment",
+      "url": "self-hosted-deployment"
+    },
+    {
       "name": "API Reference",
       "url": "api-references"
     }
@@ -93,8 +97,15 @@
       ]
     },
     {
-      "group": "On-prem deployment",
-      "pages": ["on-premise-deployment/checklist"]
+      "group": "Self-hosted deployment",
+      "pages": [
+        "self-hosted-deployment/overview",
+        "self-hosted-deployment/collector",
+        "self-hosted-deployment/server",
+        "self-hosted-deployment/cube-js",
+        "self-hosted-deployment/google-task-queue",
+        "self-hosted-deployment/singlestore-db"
+      ]
     },
     {
       "group": "Data import schemas",

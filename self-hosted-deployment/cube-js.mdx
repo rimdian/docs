@@ -1,0 +1,39 @@
+---
+title: 'Cube.js'
+sidebarTitle: 'Cube.js'
+description: ''
+icon: chart-mixed
+iconType: duotone
+---
+
+Cube.js can also run as a **stateless** Docker image with in-memory cache, because SingleStoreDB is built to handle massive real-time analytics workloads.
+
+[Cube Cloud](https://cube.dev/product/why-cube-cloud) is also available if you don't want to manage the infrastructure yourself.
+
+## Deployment
+
+The Docker image is available on [Docker Hub](https://hub.docker.com/r/rimdian/cubejs/tags) and can be pulled with the following command:
+
+```bash
+docker pull rimdian/cubejs:latest
+```
+
+### Env variables
+
+All the following environment variables are required to run the Cube.js server.
+
+| Property | Description                           | Example |
+| -------- | ------------------------------------- |---------|
+| `NODE_ENV`     | The environment the server is running in. | `production` |
+| `DB_PREFIX`    | The Rimdian database prefix. | `rmd_` |
+| `CUBEJS_DEV_MODE` | Whether the server is running in development mode. | `false` |
+| `CUBEJS_WEB_SOCKETS` | Whether the server should use websockets. | `false` |
+| `DEBUG_LOG` | Whether the server should log debug messages. | `false` |
+| `CUBEJS_DB_HOST` | The SingleStoreDB host. | `127.0.0.1` |
+| `DB_PREFIX` | The Rimdian database prefix. | `rmd_` |
+| `CUBEJS_DB_PORT` | The SingleStoreDB port. | `3306` |
+| `CUBEJS_DB_USER` | The SingleStoreDB username. | `username` |
+| `CUBEJS_DB_PASS` | The SingleStoreDB password. | `password` |
+| `CUBEJS_DB_TYPE` | The SingleStoreDB type. | should be `mysql` |
+| `CUBEJS_DB_SSL` | Whether the SingleStoreDB connection should use SSL. | `true` |
+| `CUBEJS_API_SECRET` | Same secret key as the Server & Collector. | `my-very-complex-secret-key` |

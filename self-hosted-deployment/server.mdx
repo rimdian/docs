@@ -1,0 +1,59 @@
+---
+title: 'Server'
+sidebarTitle: 'Server'
+description: ''
+icon: server
+iconType: duotone
+---
+
+The Server is a **stateless** Docker image that can be deployed on any infrastructure that supports Docker.
+
+You can scale it horizontally by deploying multiple instances of the server. However it's important to activate an **auto-scaler** to handle the traffic spikes.
+
+<Tip>If your Rimdian Servers can't keep up with the work, the Task Queue will slow down the processing rate and the buffer will grow.</Tip>
+
+## Deployment
+
+The Docker image is available on [Docker Hub](https://hub.docker.com/r/rimdian/server/tags) and can be pulled with the following command:
+
+```bash
+docker pull rimdian/server:latest
+```
+
+### Env variables
+
+All the following environment variables are required to run the data Collector.
+
+| Property | Description                           | Example |
+| -------- | ------------------------------------- |---------|
+| `ENV`     | The environment the server is running in. | `development` or `test` or `production` |
+| `API_PORT` | The port the server will listen to. | `8080` |
+| `API_ENDPOINT` | The hostname of the exposed API server. | `rimdian.mybusiness.com` |
+| `COLLECTOR_ENDPOINT` | The hostname of the exposed data Collector server. | `go.mybusiness.com` |
+| `SECRET_KEY ` | The secret key for signing data, tokens etc... **Should be same as the Collector configuration**. | `my-very-complex-secret-key` |
+| `ORGANIZATION_ID` | The default organization ID created on install. It cannot be changed later. | `mybusiness` |
+| `ORGANIZATION_NAME` | The default organization name created on install. | `My Business` |
+| `ROOT_EMAIL` | The root account email. | `admin@mybusiness.com` |
+| `DB_DSN` | The database connection string. | `user:pass@tcp(IP:3306)/?tls=skip-verify` |
+| `SMTP_HOST` | The SMTP host for system emails. | `smtp.mybusiness.com` |
+| `SMTP_PORT` | The SMTP port for system emails. | `587` |
+| `SMTP_USERNAME` | The SMTP username for system emails. | `username` |
+| `SMTP_PASSWORD` | The SMTP password for system emails. | `password` |
+| `SMTP_FROM` | The SMTP from email for system emails. | `admin@mybusiness.com` |
+| `SMTP_ENCRYPTION` | The SMTP encryption for system emails. | `STARTTLS` or `SSLTLS` |
+| `GCLOUD_PROJECT` | The Google Cloud workspace ID. | `mybusiness` |
+| `GCLOUD_JSON_CREDENTIALS` | The Google Cloud JSON credentials. | `{"type":"service_account","project_id":"mybusiness" ...}` |
+| `TASK_QUEUE_LOCATION` | The Task Queue location for tasks. | `europe-west1` |
+| `CUBEJS_ENDPOINT` | The Cube.js endpoint. | `http://cubejs.mybusiness.com` |
+
+### Optional env variables:
+
+| Property | Description                           | Example |
+| -------- | ------------------------------------- |---------|
+| `OPEN_CENSUS_EXPORTER` | The OpenCensus exporter for stats & tracing. | `stackdriver` |
+| `SENTRY_DSN` | The Sentry DSN. | `https://XXXXXXXX...` |
+| `DB_PREFIX` | The Rimdian database prefix. | `rmd_` |
+| `DB_MAX_OPEN_CONNS` | The maximum number of open connections to the database. | `200` |
+| `DB_MAX_IDLE_CONNS` | The maximum number of idle connections to the database. | `200` |
+| `DB_MAINTENANCE` | Set to `true` if the database is under maintenance and not accessible. | `false` |
+| `DB_CA_CERT_BASE64` | The database TLS Certificate Authority. | `XXXXXXXX...` |

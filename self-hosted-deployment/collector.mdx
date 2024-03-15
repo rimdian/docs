@@ -1,0 +1,40 @@
+---
+title: 'Collector'
+sidebarTitle: 'Collector'
+description: ''
+icon: inbox-in
+iconType: duotone
+---
+
+The Collector is a **stateless** Docker image that can be deployed on any infrastructure that supports Docker.
+
+You can scale it horizontally by deploying multiple instances of the collector.
+
+It also acts as a 1st party tracking server, that rewrites the cookies server-side to prevent tracking blockers.
+
+For that reason, if your website is hosted at `www.example.com`, you should deploy the collector on a sub-domain like `go.example.com`.
+
+<Tip>An URL shortener will be added very soon to handle your digital marketing campaigns redirections (i.e: click from a newsletter...). So choose your sub-domain wisely.</Tip>
+
+
+## Deployment
+
+The Docker image is available on [Docker Hub](https://hub.docker.com/r/rimdian/collector/tags) and can be pulled with the following command:
+
+```bash
+docker pull rimdian/collector:latest
+```
+
+### Env variables
+
+All the following environment variables are required to run the data Collector.
+
+| Property | Description                           | Example |
+| -------- | ------------------------------------- |---------|
+| `ENV`     | The environment the collector is running in. | `development` or `test` or `production` |
+| `COLLECTOR_PORT`     | The port the collector will listen on. | `8080` |
+| `API_ENDPOINT` | The hostname of the exposed API server. | `rimdian.mybusiness.com` |
+| `SECRET_KEY` | The secret key for signing data. | `my-very-complex-secret-key` |
+| `GCLOUD_PROJECT` | The Google Cloud project ID, that the Task Queue is associated with. | `my-project` |
+| `GCLOUD_JSON_CREDENTIALS` | The JSON credentials for the Google Cloud project. | `{ "type": "service_account", "project_id": "my-project"... }` | 
+| `TASK_QUEUE_LOCATION` | The location of the Task Queue for data imports. | `europe-west1` |
