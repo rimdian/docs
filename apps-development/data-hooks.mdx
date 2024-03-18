@@ -21,7 +21,9 @@ Rimdian supports the following data hook types:
 
 ## Hook on_success
 
-When a data hook is called, Rimdian will send a POST request to your app `webhook_endpoint` with the following payload:
+<Tip>It is important to return a response within **7 seconds**. If the response is not received within a few seconds, the data hook will be retried 3 times before being dropped!</Tip>
+
+When a `on_success` data hook is called, Rimdian will send a POST request to your app `webhook_endpoint` with the following payload:
 
 ```json
 {
@@ -35,15 +37,15 @@ When a data hook is called, Rimdian will send a POST request to your app `webhoo
     },
     "kind": "data_hook",
     "data_hook": {
-        "id": "app_myapp_onsuccess",
-        "name": "Forward data on success",
-        "on": "on_success",
-        "log_id": "1234567890",
-        "log_kind": "order",
-        "log_action": "create",
-        "log_item": "{ ... JSON escaped item ... }",
-        "log_item_id": "xxxxxxxxx",
-        "log_item_external_id": "order_123",
+        "data_hook_id": "app_myapp_onsuccess",
+        "data_hook_name": "Forward data on success",
+        "data_hook_on": "on_success",
+        "data_log_id": "1234567890",
+        "data_log_kind": "order",
+        "data_log_action": "create",
+        "data_log_item": "{ ... raw JSON item string ... }",
+        "data_log_item_id": "xxxxxxxxx",
+        "data_log_item_external_id": "order_123",
         "user": {
             "id": "xxxxxx",
             "external_id": "user_123",
@@ -65,11 +67,9 @@ When a data hook is called, Rimdian will send a POST request to your app `webhoo
 
 The full `user` object will be included if the data log item is associated with a user.
 
-The data `log_item` is the JSON-escaped string value of the item sent to the Collector.
+The `data_log_item` is the JSON-escaped string value of the item sent to the Collector.
 
 ### Expected response
-
-<Tip>It is important to return a response within **7 seconds**. If the response is not received within a few seconds, the data hook will be retried 3 times before being dropped!</Tip>
 
 ```json
 {
@@ -83,4 +83,53 @@ Returning `is_done` as `false` will cause the data hook to be retried.
 
 ## Hook on_validation
 
-TODO
+
+
+<Tip>It is important to return a response within **5 seconds**. If the response is not received within a few seconds, the data hook won't be retried!</Tip>
+
+When a `on_validation` data hook is called, Rimdian will send a POST request to your app `webhook_endpoint` with the following payload:
+
+```json
+{
+    "api_endpoint": "https://RIMDIAN_API_ENDPOINT",
+    "collector_endpoint": "https://RIMDIAN_COLLECTOR_ENDPOINT",
+    "workspace_id": "acme_workspace1",
+    "app_id": "app_myapp",
+    "app_state": {
+        "key1": "value1",
+        "key2": "value2"
+    },
+    "kind": "data_hook",
+    "data_hook": {
+        "data_hook_id": "app_myapp_onvalidation",
+        "data_hook_name": "Enrich data on validation",
+        "data_hook_on": "on_validation",
+        "data_log_id": "1234567890",
+        "data_log_kind": "order",
+        "data_log_item": "{ ... raw JSON item string ... }"
+    }
+}
+```
+
+The `data_log_item` is the JSON-escaped string value of the item sent to the Collector.
+
+### Expected response for rejecting the data
+
+```json
+{
+    "action": "reject",
+    "message": "Optional message to explain why the data was rejected"
+}
+```
+
+### Expected response for enriching the data
+
+```json
+{
+    "action": "update",
+    "message": "Optional message to explain why the data was updated",
+    "updated_item": "{ ... raw updated JSON item string ... }"
+}
+```
+
+<Tip>The `updated_item` field should be a JSON string and not a JSON object.</Tip>
