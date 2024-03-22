@@ -58,3 +58,25 @@ All the following environment variables are required to run the data Collector.
 | `DB_MAX_IDLE_CONNS` | The maximum number of idle connections to the database. | `200` |
 | `DB_MAINTENANCE` | Set to `true` if the database is under maintenance and not accessible. | `false` |
 | `DB_CA_CERT_BASE64` | The database TLS Certificate Authority. | `XXXXXXXX...` |
+
+## S3 Storage with Google Cloud Storage
+
+Rimdian uses S3 storage for file uploads (images, videos, etc...).
+
+If you want to use S3 storage with Google Cloud Storage, you should activate the S3 compatibility mode on GCS and set the CORS policy like this:
+
+```json gcs_cors.json
+[
+    {
+      "origin": ["*"],
+      "responseHeader": ["*"],
+      "method": ["GET", "HEAD", "PUT", "POST", "DELETE"],
+      "maxAgeSeconds": 3600
+    }
+]
+```
+
+```bash
+gcloud storage buckets update gs://BUCKET_NAME --cors-file=gcs_cors.json
+gcloud storage buckets describe gs://BUCKET_NAME --format="default(cors_config)"
+```
