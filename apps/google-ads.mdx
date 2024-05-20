@@ -1,0 +1,75 @@
+---
+title: 'Google Ads'
+sidebarTitle: 'Google Ads'
+description: ''
+icon: google
+iconType: duotone
+---
+
+## Overview
+
+The Google Ads app does the following:
+
+- Imports the performance metrics of the Google Ads campaigns / ad-group ads / keywords to analyze the ROAS with Rimdian attribution.
+- Enriches the web sessions with the ad clicks metadatas from the Google Ads API.
+- Forwards the conversions details to the Google Ads "Enhanced Conversions" API to optimize the campaigns.
+- Syncs your Rimdian user segments with Google Ads "Customer lists".
+
+## ROAS (Return On Ad Spend)
+
+### Why?
+
+The metrics provided by the Google Ads reports are computed with the following issues:
+- The performance is computed before any cross-device reconciliation.
+- The performance is not taking care of multi-touch attribution.
+- The performance is limited by an attribution window of 30-90 days.
+
+Therefore the ROAS computed by Google Ads is not accurate.
+
+### Solution
+
+The Google Ads app allows you to import the daily metrics of your Google Ads account (campaigns / ad-group ads / keywords) in order to recompute them with the Rimdian multi-touch attribution.
+
+Your Google Ads ROAS will be updated everytime a cross-device reconciliation is detected in a multi-touch attribution context.
+
+## Clicks
+
+### Why?
+
+All the traffic sent by Google Ads to your website is tracked with a `gclid` URL parameter instead of the classic `utm` parameters (utm_source / medium / campaign / content / term).
+
+With the absence of utm parameters, you won't be able to measure the performance of your Google Ads campaigns.
+
+### Solution
+
+When a user clicks on a Google Ads ad, the `gclid` parameter is added to the URL. This parameter is automatically collected by Rimdian and stored with each web session.
+
+The app uses the Google Ads API to pull the campaign details for each of the `gclid` parameters collected, and updates the corresponding web session with the campaign details.
+
+### How?
+
+<Steps>
+    <Step title="Clicks sync">
+    Periodically, the app will sync the `gclid` parameters with the Google Ads API to pull the campaign details for each of the `gclid` parameters collected.
+    </Step>
+    <Step title="Session update">
+    When a gclid parameter is matched, the session utm_source, utm_medium, utm_campaign, utm_content, utm_term are updated with the Google Ads campaign details.
+    </Step>
+    <Step title="Clicks metadatas">
+    All the clicks metadatas are also stored in a dedicated table (matching keywords, search queries, cpc...) for further analysis.
+    </Step>
+</Steps>
+
+## Enhanced Conversions
+
+### Why?
+
+With the end of 3rd party cookies, Google Ads can't track anymore the conversions that happen on your website. This means that you can't track the conversions that happen on your website and attribute them to the right ad click. This is a big problem for advertisers that rely on Google Ads to drive traffic to their website and track the conversions that happen on their website.
+
+### Solution
+
+The Google Ads app allows you to forward the conversions that happen on your website to Google Ads in real-time.
+
+### How?
+
+Select the "Conversion Action" configured in your Google Ads account that you want to forward the conversions to.
