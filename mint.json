@@ -67,7 +67,13 @@
     },
     {
       "group": "Featured apps",
-      "pages": ["apps/overview", "apps/google-ads", "apps/meta-conversions-api", "apps/shopify"]
+      "pages": [
+        "apps/overview",
+        "apps/google-ads",
+        "apps/meta-conversions-api",
+        "apps/shopify",
+        "apps/woocommerce"
+      ]
     },
     {
       "group": "Integration",

@@ -1,0 +1,45 @@
+---
+title: 'WooCommerce'
+sidebarTitle: 'WooCommerce'
+description: ''
+icon: wordpress
+iconType: duotone
+---
+
+Integrating Rimdian with WooCommerce allows you to collect users navigation, import previous orders & customers and sync your data in real-time with webhooks.
+
+The integration is composed of 2 steps:
+
+1. Adding the [JavaScript SDK](/integration/javascript-sdk) on your template
+2. Creating a WooCommerce API key and connecting it with Rimdian
+
+## Adding the JavaScript SDK
+
+<Tip>Make sure to read the [JavaScript SDK documentation](/integration/javascript-sdk) before moving forward.</Tip>
+
+This integration requires the intervention of a frontend web developer.
+
+## Creating a WooCommerce API key for Rimdian
+
+In order to be able to import the previous orders & customers, and receive updates in real-time via webhooks, we need to connect Rimdian to your WooCommerce store API.
+
+1. Go to `WooCommerce > Settings > Advanced > REST API`
+2. Click on the button `Add key`
+3. Select the `Read` permission
+4. Then click on the button `Generate API key`
+5. Grab the `Consumer key` and `Consumer secret`, and paste them into your Rimdian WooCommerce app.
+6. Then connect your WooCommerce app in Rimdian
+
+<img
+  src="/apps/woocommerce/woocommerce-api-keys-settings.png"
+  alt="WooCommerce settings"
+/>
+
+<img
+  src="/apps/woocommerce/woocommerce-creating-api-keys.png"
+  alt="Create a WooCommerce API key"
+/>
+<img
+  src="/apps/woocommerce/woocommerce-api-key-generated.png"
+  alt="Get the app keys"
+/>
