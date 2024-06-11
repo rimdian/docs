@@ -22,7 +22,7 @@ This integration requires the intervention of a frontend web developer.
 
 ### Initialisation
 
-The SDK should be initialised between the HTML `<head> ... </head>` tags of your layout, usually in the template file `Layout > theme.liquid`
+The SDK can be initialised at the end of the HTML `<body> ... </body>` tags of your layout, usually in the template file `Layout > theme.liquid`
 
 ```html
 <head>
@@ -30,167 +30,161 @@ The SDK should be initialised between the HTML `<head> ... </head>` tags of your
 
   <script src="https://cdn-eu.rimdian.com/js/sdk.min.js" type="text/javascript"></script>
   <script>
-    Rimdian.init({
-      workspace_id: 'YOUR_WORKSPACE_ID',
-      host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
-      cross_domains: ['blog.yourwebsite.com'],
-      ignored_origins: [{
-        utm_source: 'paypal.com',
-        utm_medium: 'referral'
-      }]
-    });
-    Rimdian.setDispatchConsent(true);
+	// grabs the current cart
+	var currentCart = {{ cart | json}};
 
-		{%- if customer -%}
-		Rimdian.setUserContext({
-			external_id: '{{ customer.id }}',
-			is_authenticated: true,
-			hmac: '{{ customer.id | hmac_sha256: "YOUR_SECRET_KEY" }}'
-		});
-		{%- endif -%}
+    // takes a Shopify cart object and tracks it in Rimdian
+    var handleCartForRimdian = function (cart) {
+        if (cart.item_count === 0 && !Rimdian.currentCart) return
 
-		var pageviewData = {title: "{{ page_title }}"};
+        Rimdian.onReady(function () {
+            var rmdCart = {
+                external_id: cart.id ? cart.id : Rimdian.currentSession.external_id + '_cart',
+                created_at: Rimdian.currentSession.created_at,
+                updated_at: Rimdian.currentSession.updated_at,
+                items: []
+            }
 
-		{%- if product -%}
-		var currentProduct = {{ product | json }};
-		var currentVariant = {{ product.selected_or_first_available_variant | json }};
+            cart.items.forEach(function (item) {
+                var cartItem = {
+                    external_id: ''+item.id,
+                    product_external_id: ''+item.product_id,
+                    name: item.title ? item.title : item.sku,
+                    quantity: item.quantity,
+                    price: parseFloat(item.final_price),
+                    brand: item.vendor,
+                    image_url: item.image
+                }
+                if (item.sku && item.sku != '') {
+                    cartItem.sku = item.sku;
+                }
+                if (item.variant_id && item.variant_id != '') {
+                    cartItem.variant_external_id = ''+item.variant_id;
+                    cartItem.variant_title = item.variant_title;
+                }
+                rmdCart.items.push(cartItem);
+            });
 
-        
-		if (currentProduct && currentProduct.id) {
-		  pageviewData.product_external_id = ''+currentProduct.id;
-		  pageviewData.product_name = currentProduct.title.replace(/\\"/, '"');
-      pageviewData.product_price = currentProduct.price;
+            Rimdian.trackCart(rmdCart);
+        });
     }
-		if (currentVariant && currentVariant.id) {
-		  pageviewData.product_variant_external_id = ''+currentVariant.id;
-		  pageviewData.product_variant_title = currentVariant.title.replace(/\\"/, '"');
-		  pageviewData.product_sku = currentVariant.sku;
-      pageviewData.product_price = currentVariant.price;
-		}
-		{%- endif -%}
 
-		Rimdian.trackPageview(pageviewData);
-		Rimdian.dispatch();
+	// watches for cart changes
+    const cartObserver = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+            const isValidRequestType = ['xmlhttprequest', 'fetch'].includes(entry.initiatorType);
+            const isCartChangeRequest = /\/cart\//.test(entry.name);
+            if (isValidRequestType && isCartChangeRequest) {
+                fetch(`${window.location.origin}/cart.js`).then(res => res.clone().json().then(data => {
+                    handleCartForRimdian(data)
+                }))
+            }
+        });
+    });
+    cartObserver.observe({ entryTypes: ["resource"] });
+
+	try {
+        Rimdian.init({
+            workspace_id: 'WORKSPACE_ID',
+			host: 'https://YOUR_TRACKING_SUBDOMAIN.yourwebsite.com',
+			cross_domains: ['blog.yourwebsite.com'],
+            ignored_origins: [{
+                utm_source: 'paypal.com',
+                utm_medium: 'referral'
+            }]
+        });
+
+        // use this block if you are using the default Shopify cookie banner
+        Rimdian.onReady(function () {
+
+            Rimdian.setDispatchConsent(true);
+
+            if (Rimdian.currentUser.consent_all === true) return
+
+            var rimdianUserConsent = {
+                consent_all: false,
+                consent_personalization: false,
+                consent_marketing: false,
+            }
+
+            // listen to cookie banner
+            document.addEventListener("visitorConsentCollected", (event) => {
+                if (!event.detail) return
+                if (event.detail.marketingAllowed || event.detail.saleOfDataAllowed || event.detail.firstPartyMarketingAllowed || event.detail.thirdPartyMarketingAllowed) {
+            		rimdianUserConsent.consent_marketing = true;
+                }
+				if (event.detail.analyticsAllowed || event.detail.preferencesAllowed || event.detail.firstPartyMarketingAllowed) {
+					rimdianUserConsent.consent_personalization = true;
+				}
+				if (rimdianUserConsent.consent_marketing === true && rimdianUserConsent.consent_personalization === true) {
+					rimdianUserConsent = { consent_all: true }
+				}
+				Rimdian.setUserContext(rimdianUserConsent);
+            });
+
+			// ready  CMP value
+			var interval = setInterval(function () {
+				// Shopify object is not available yet
+				if (!window.Shopify || !window.Shopify.customerPrivacy) return
+
+				clearInterval(interval);
+
+				var cmpValue = window.Shopify.customerPrivacy.currentVisitorConsent();
+				if (cmpValue) {
+                    if (cmpValue.marketing === 'yes') {
+           				rimdianUserConsent.consent_marketing = true;
+					}
+					if (cmpValue.analytics === 'yes' || cmpValue.preferences === 'yes') {
+						rimdianUserConsent.consent_personalization = true;
+					}
+					if (rimdianUserConsent.consent_marketing === true && rimdianUserConsent.consent_personalization === true) {
+						rimdianUserConsent = { consent_all: true }
+					}
+        			Rimdian.setUserContext(rimdianUserConsent);
+                }
+            }, 300);
+        });
+
+        // track pageview & cart updates
+        Rimdian.onReady(function () {
+
+            {% if customer %}
+			Rimdian.setUserContext({
+				external_id: '{{ customer.id }}',
+				is_authenticated: true,
+				hmac: '{{ customer.id | hmac_sha256: "WORKSPACE_HMAC_KEY" }}'
+			});
+			{% endif %}
+
+        	var pageviewData = {title: "{{ page_title }}" };
+
+        	{% if product %}
+        	var currentProduct = {{ product | json }};
+            var currentVariant = {{ product.selected_or_first_available_variant | json }};
+
+			if (currentProduct && currentProduct.id) {
+				pageviewData.product_external_id = '' + currentProduct.id;
+				pageviewData.product_name = currentProduct.title.replace(/\\"/, '"');
+				pageviewData.product_price = currentProduct.price;
+            }
+			if (currentVariant && currentVariant.id) {
+				pageviewData.product_variant_external_id = '' + currentVariant.id;
+				pageviewData.product_variant_title = currentVariant.title.replace(/\\"/, '"');
+				pageviewData.product_sku = currentVariant.sku;
+				pageviewData.product_price = currentVariant.price;
+            }
+        	{% endif %}
+
+			Rimdian.trackPageview(pageviewData);
+			handleCartForRimdian(currentCart);
+			Rimdian.dispatch();
+        });
+
+    } catch (e) {
+        console.error(e);
+    }
   </script>
 </head>
-```
-
-## Shopping cart
-
-In most Shopify websites, the shopping cart can be updated dynamically with JavaScript when a user adds a product to the cart without redirecting to the `/cart` URL.
-
-It can also be updated from the `/cart` URL.
-
-Make sure you track the shopping cart in both cases.
-
-### Cart template
-
-To track shopping carts updates from the `/cart` URL you can add the following script to the `cart.liquid` template:
-
-```html
-<script type="text/javascript">
-	var rmdItems = [];
-	{% if cart.item_count > 0 %}
-		{%- for item in cart.items -%}
-			rmdItems.push({
-				external_id: '{{ item.id }}',
-				product_external_id: '{{ item.product_id }}',
-				name: '{%- if item.title == blank -%}{{ item.sku }}{%- else -%}{{ item.title }}{%- endif -%}',
-				quantity: {{ item.quantity }},
-				{%- if item.sku and item.sku != '' -%}
-					sku: '{{ item.sku }}',
-				{%- endif -%}
-				{%- if item.variant_id and item.variant_id != '' -%}
-					variant_external_id: '{{ item.variant_id }}',
-					variant_title: '{{ item.variant.title}}',
-				{%- endif -%}
-				price: parseFloat({{ item.final_price }}) / 100,
-				brand: '{{ item.vendor }}',
-				image_url: '{{ item | img_url: '300x300' }}'
-			});
-		{%- endfor -%}
-	{% endif %}
-	
-	{% if cart.id %}
-	Rimdian.trackCart({
-		external_id: '{{ cart.id }}',
-		created_at: '{{ cart.created_at }}', 
-		updated_at: '{{ cart.updated_at }}', 
-	  items: rmdItems,
-		currency: {{ cart.currency }}
-	});
-	Rimdian.dispatch();
-	{% endif %}
-</script>
-```
-
-### JavaScript cart
-
-Your shopping cart can be updated without redirecting to the `/cart` URL, with the help of a JavaScript function available in the file `Assets > theme.js.liquid`.
-
-To track shopping carts updates with this method, you have to declare the following function after initialising the SDK:
-
-```html
-<head>
-...
-<script type="text/javascript" src="https://cdn-eu.rimdian.com/js/sdk.min.js"></script>
-<script type="text/javascript">
-
-Rimdian.init(...);
-
-Rimdian.onShopifyCart = function(cart) {
-	var rmdItems = [];
-	if (cart.item_count > 0) {
-		cart.items.forEach(function(item) {
-			var rmdItem = {
-				external_id: ''+item.id,
-				product_external_id: ''+item.product_id,
-				name: item.title && item.title != '' ? ''+item.title : ''+item.sku,
-				quantity: parseInt(item.quantity, 10),
-				price: parseFloat(item.final_price) / 100,
-				brand: ''+item.vendor,
-			};
-			if (item.sku && item.sku != '') rmdItem.sku = ''+item.sku;
-			if (item.variant_id && item.variant_id != '') {
-				rmdItem.variant_external_id = ''+item.variant_id;
-				rmdItem.variant_title = ''+item.variant.title;
-			}
-			if (item.featured_image && item.featured_image.url) rmdItem.image_url = item.featured_image.url;
-			rmdItems.push(rmdItem);
-		});
-	}
-	Rimdian.trackCart({
-		external_id: ''+cart.id,
-		created_at: cart.created_at, 
-		updated_at: cart.updated_at, 
-		items: rmdItems,
-		currency: cart.currency
-	});
-	Rimdian.dispatch();
-};
-</script>
-</head>
-```
-
-And update the file `theme.js.liquid` like this:
-
-```js
-// Get from cart.js returns the cart in JSON
-Shopify.getCart = function(callback) {
-	jQuery.getJSON('/cart.js', function (cart, textStatus) {
-		if (Rimdian && Rimdian.onShopifyCart) {
-			try {
-				Rimdian.onShopifyCart(cart);
-			} catch(e) {
-				console.log(e);
-			}
-		}
-		if ((typeof callback) === 'function') {
-			callback(cart);
-		}
-		Shopify.onCartUpdate(cart);
-	});
-};
 ```
 
 ## Adding a script on your “order confirmation” page
@@ -210,7 +204,7 @@ To track order on the confirmation page, you have to copy and paste the followin
   });
   Rimdian.setDispatchConsent(true);
 
-Rimdian.trackPageview({title: "Checkout thank you"});
+  Rimdian.trackPageview({title: "Checkout thank you"});
 
 {%- if checkout.order -%}
 
