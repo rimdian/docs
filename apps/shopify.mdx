@@ -237,7 +237,7 @@ To track order on the confirmation page, you have to copy and paste the followin
    
   Rimdian.trackOrder({
 	  external_id: '{{ checkout.order.name }}',
-	  created_at: '{{ checkout.order.created_at }}',
+	  created_at: new Date('{{ checkout.order.created_at }}').toISOString(),
 	  subtotal_price: parseFloat('{{ checkout.order.subtotal_price }}') / 100,
 	  total_price: parseFloat('{{ checkout.order.total_price }}') / 100,
 	  currency: '{{ shop.currency }}',
