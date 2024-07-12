@@ -204,48 +204,50 @@ To track order on the confirmation page, you have to copy and paste the followin
   });
   Rimdian.setDispatchConsent(true);
 
-  Rimdian.trackPageview({title: "Checkout thank you"});
+	Rimdian.onReady(function() {
+		Rimdian.trackPageview({ title: "Checkout thank you" });
 
-{%- if checkout.order -%}
+		{%- if checkout.order -%}
 
-  Rimdian.setUserContext({
-		external_id: '{{ checkout.order.customer.id }}',
-		is_authenticated: true,
-		hmac: '{{ checkout.order.customer.id | hmac_sha256: "YOUR_SECRET_KEY" }}'
-	});
+		Rimdian.setUserContext({
+			external_id: '{{ checkout.order.customer.id }}',
+			is_authenticated: true,
+			hmac: '{{ checkout.order.customer.id | hmac_sha256: "YOUR_SECRET_KEY" }}'
+		});
 
-  var rmdOrderItems = [];
-  
-  {%- for item in checkout.order.line_items -%}
-			rmdOrderItems.push({
-				external_id: '{{ item.id }}',
-				product_external_id: '{{ item.product_id }}',
-				name: '{%- if item.title == blank -%}{{ item.sku }}{%- else -%}{{ item.title }}{%- endif -%}',
-				quantity: {{ item.quantity }},
-				{%- if item.sku and item.sku != '' -%}
-					sku: '{{ item.sku }}',
-				{% endif %}
-				{%- if item.variant_id and item.variant_id != '' -%}
-					variant_external_id: '{{ item.variant_id }}',
-					variant_title: '{{ item.variant.title}}',
-				{% endif %}
-				price: parseFloat({{ item.final_price }}) / 100,
-				brand: '{{ item.vendor }}',
-				image_url: '{{ item | img_url: '300x300' }}'
+		var rmdOrderItems = [];
+
+		{%- for item in checkout.order.line_items -%}
+		rmdOrderItems.push({
+			external_id: '{{ item.id }}',
+			product_external_id: '{{ item.product_id }}',
+			name: '{%- if item.title == blank -%}{{ item.sku }}{%- else -%}{{ item.title }}{%- endif -%}',
+			quantity: {{ item.quantity }},
+		{%- if item.sku and item.sku != '' -%}
+	sku: '{{ item.sku }}',
+		{% endif %}
+	{%- if item.variant_id and item.variant_id != '' -%}
+	variant_external_id: '{{ item.variant_id }}',
+		variant_title: '{{ item.variant.title}}',
+			{% endif %}
+	price: parseFloat({{ item.final_price }}),
+		brand: '{{ item.vendor }}',
+			image_url: '{{ item | img_url: '300x300' }}'
 			});
-  {%- endfor -%}
-   
-  Rimdian.trackOrder({
-	  external_id: '{{ checkout.order.name }}',
-	  created_at: new Date('{{ checkout.order.created_at }}').toISOString(),
-	  subtotal_price: parseFloat('{{ checkout.order.subtotal_price }}') / 100,
-	  total_price: parseFloat('{{ checkout.order.total_price }}') / 100,
-	  currency: '{{ shop.currency }}',
+	{%- endfor -%}
+
+	Rimdian.trackOrder({
+		external_id: '{{ checkout.order.name }}',
+		created_at: new Date('{{ checkout.order.created_at }}').toISOString(),
+		subtotal_price: parseFloat('{{ checkout.order.subtotal_price }}'),
+		total_price: parseFloat('{{ checkout.order.total_price }}'),
+		currency: '{{ shop.currency }}',
 		items: rmdOrderItems
 	});
 
-  Rimdian.dispatch();
-{%- endif -%}
+	Rimdian.dispatch();
+	{%- endif -%}
+	});
 </script>
 ```
 
