@@ -6,9 +6,9 @@ icon: file
 iconType: duotone
 ---
 
-## Properties
+# Properties
 
-### Root
+## Root
 
 <ParamField path="id" type="string">
   **App ID** - It should be prefixed with `appx_` for private apps and `app_` for public apps. It should be unique across all apps. Your app ID can only contain letters & numbers. Example: `appx_myapp123`.
@@ -70,7 +70,11 @@ iconType: duotone
     **App tables** - An array of extra tables that your app can add to the database. See [App table properties](#app-table) for more details.
 </ParamField>
 
-### Task
+<ParamField path="cube_schemas" type="object">
+    **Cube schemas** - A object containing your app tables Cube schemas. See [Cube schemas properties](#cube-schemas) for more details.
+</ParamField>
+
+## Task
 
 <ParamField path="id" type="string">
     **Task ID** - The ID of the task, prefixed by your app ID. Example: `appx_myapp123_task_1`.
@@ -96,7 +100,7 @@ iconType: duotone
     **On multiple exec** - What to do when the task is executed multiple times concurently. Values: `allow`, `discard_new`, `retry_later`, `abort_existing`.
 </ParamField>
 
-### Data hook
+## Data hook
 
 <ParamField path="id" type="string">
     **Data hook ID** - The ID of the data hook, prefixed by your app ID. Example: `appx_myapp123_on_create_user`.
@@ -114,7 +118,7 @@ iconType: duotone
     **For** - The kind of data and actions that the data hook should listen to. See [Data hook for](#app-table) for more details.
 </ParamField>
 
-### Data hook for
+## Data hook for
 
 <ParamField path="kind" type="string">
     **Data kind** - The kind of data that the data hook should listen to. Values: `user`, `segment`, `order`, `order_item`, `cart`, `cart_item`, `session`, `custom_event`, `pageview`, `appx_myapp_custom_table`...
@@ -124,7 +128,7 @@ iconType: duotone
     **Action** - Only for `on_success` hooks. The action that the data hook should listen to. Values: `create`, `update`. For `kind == segment` values are `exit`, `enter`.
 </ParamField>
 
-### SQL query
+## SQL query
 
 <ParamField path="id" type="string">
     **SQL query ID** - The ID of the SQL query, prefixed by your app ID. Example: `appx_myapp123_sql_query_1`.
@@ -150,7 +154,7 @@ iconType: duotone
     **Test arguments** - An array of test arguments for the SQL query. Example: `["user_123"]`.
 </ParamField>
 
-### Extra column
+## Extra column
 
 <ParamField path="kind" type="string">
     **Kind** - The kind of data that the extra column should be added to. Example: `user`, `order`, `order_item`, `session`, `pageview`, `custom_event`, `cart`, `cart_item`.
@@ -160,7 +164,7 @@ iconType: duotone
     **Columns** - An array of columns that should be added to the kind. See [Column properties](#table-column) for more details.
 </ParamField>
 
-### App table
+## App table
 
 <ParamField path="name" type="string">
     **Table name** - The name of the table prefixed by your app ID. Example: `appx_myapp123_table_1`.
@@ -184,10 +188,6 @@ iconType: duotone
 
 <ParamField path="columns" type="array">
     **Columns** - An array of columns that should be added to the table. See [Column properties](#table-column) for more details.
-</ParamField>
-
-<ParamField path="joins" type="array">
-    **Joins** - An array of joins that should be added to the table. See [Join properties](#table-join) for more details.
 </ParamField>
 
 <ParamField path="indexes" type="array">
@@ -253,24 +253,6 @@ iconType: duotone
     **Hide in analytics** - Whether the column should be hidden in analytics. Example: `true`.
 </ParamField>
 
-### Table join
-
-<ParamField path="external_table" type="string">
-    **External table** - The name of the external table. Example: `appx_myapp123_table_2`.
-</ParamField>
-
-<ParamField path="relationship" type="enum">
-    **Relationship** - The relationship between the tables. Values: `one_to_one`, `one_to_many` or `many_to_one`.
-</ParamField>
-
-<ParamField path="local_column" type="string">
-    **Local column** - The name of the local column. Example: `external_id`.
-</ParamField>
-
-<ParamField path="external_column" type="string">
-    **External column** - The name of the external column. Example: `table1_external_id`.
-</ParamField>
-
 ### Table index
 
 <ParamField path="name" type="string">
@@ -280,6 +262,11 @@ iconType: duotone
 <ParamField path="columns" type="array">
     **Columns** - An array of columns that should be used for the index. Example: `["column_varchar"]`.
 </ParamField>
+
+## Cube schemas
+
+Please refer to the [Cube schemas documentation](/apps-development/cube-schemas) for more details.
+
 
 ## Full example 
 
@@ -385,14 +372,6 @@ iconType: duotone
       "shard_key": ["id"],
       "unique_key": ["id"],
       "sort_key": ["created_at"],
-      "joins": [
-        {
-          "external_table": "appx_myapp_table_2",
-          "relationship": "one_to_many",
-          "local_column": "external_id",
-          "external_column": "table1_external_id"
-        }
-      ],
       "indexes": [
         {
           "name": "index_column_varchar",
@@ -502,6 +481,52 @@ iconType: duotone
         }
       ]
     }
-  ]
+  ],
+  "cube_schemas": {
+    "Appx_default_table_1": {
+      "sql": "SELECT * FROM appx_default_table_1",
+      "title": "App table 1",
+      "description": "App table 1 description",
+      "joins": {
+        "Appx_myapp_table_2": {
+          "relationship": "one_to_many",
+          "sql": "${CUBE}.external_id = ${Appx_myapp_table_2}.table1_external_id"
+        }
+      },
+      "measures": {
+        "count": {
+          "title": "Count",
+          "type": "count",
+          "sql": "id",
+          "description": "The number of lines"
+        }
+      },
+      "dimensions": {
+        "id": {
+          "title": "ID",
+          "type": "string",
+          "sql": "id",
+          "primaryKey": true,
+          "description": "ID (sha1 of external_id)"
+        },
+        "external_id": {
+          "title": "External ID",
+          "type": "string",
+          "sql": "external_id",
+          "description": "External ID"
+        },
+        "created_at": {
+          "title": "Created at",
+          "type": "datetime",
+          "sql": "created_at",
+          "description": "Created at"
+        },
+        ...
+      }
+    },
+    "Appx_default_table_2": { 
+      ...
+    }
+  }
 }
 ```

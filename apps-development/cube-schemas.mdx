@@ -1,0 +1,68 @@
+---
+title: 'App Cube schemas'
+sidebarTitle: 'Cube schemas'
+description: ''
+icon: cube
+iconType: duotone
+---
+
+If your app declared [extra tables](/apps-development/tables), you can define their JSON [Cube schemas](https://cube.dev/docs/product/data-modeling/overview) in the app manifest. 
+
+The `metrics` & `dimensions` of your Cube schemas will automatically be available in the Rimdian Console to enhance your analytics reports (e.g. [multi-touch attribution](/multi-touch-attribution) etc.).
+
+Another benefit of defining Cube schemas is that your app can leverage the [Cube.js](https://cube.dev/) API to generate custom reports, dashboards, and charts.
+
+## Usage
+
+To define Cube schemas, add a `cube_schemas` object to your app manifest. 
+
+<Tip>Each key should be an table name, with **the first letter in uppercase**.</Tip>
+
+Example taken from the Google Ads app:
+```json
+{
+    ...
+    "cube_schemas": {
+        "Appx_googleads_click": {
+            "sql": "SELECT * FROM appx_googleads_click",
+            "title": "Google Ads clicks",
+            "description": "Google Ads clicks table",
+            "joins": {
+                "Session": {
+                    "relationship": "one_to_one",
+                    "sql": "${CUBE}.external_id = ${Session}.utm_id"
+                }
+            },
+            "measures": {
+                "count": {
+                    "title": "Count",
+                    "type": "count",
+                    "sql": "id",
+                    "description": "The number of clicks"
+                }
+            },
+            "dimensions": {
+                "id": {
+                    "title": "ID",
+                    "type": "string",
+                    "sql": "id",
+                    "primaryKey": true,
+                    "description": "ID (sha1 of external_id)"
+                },
+                "external_id": {
+                    "title": "External ID",
+                    "type": "string",
+                    "sql": "external_id",
+                    "description": "External ID"
+                },
+                "created_at": {
+                    "title": "Created at",
+                    "type": "datetime",
+                    "sql": "created_at",
+                    "description": "Created at"
+                },
+            }
+        }
+    }
+}
+

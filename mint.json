@@ -93,6 +93,7 @@
         "apps-development/sql-queries",
         "apps-development/extra-columns",
         "apps-development/tables",
+        "apps-development/cube-schemas",
         "apps-development/app-manifest-reference"
       ]
     },
