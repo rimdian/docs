@@ -72,7 +72,8 @@
         "apps/google-ads",
         "apps/meta-conversions-api",
         "apps/shopify",
-        "apps/woocommerce"
+        "apps/woocommerce",
+        "apps/affilae"
       ]
     },
     {
