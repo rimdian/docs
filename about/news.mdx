@@ -1,0 +1,117 @@
+---
+title: News
+description: ''
+icon: angles-right
+---
+Main features and improvements of the platform. Bug fixes and minor updates are not listed here.
+
+## 2024
+
+### Aug 15 - App SQL Access
+
+Apps can now register SQL access to be used by the app. This is useful for apps that need to connect to the database to import data without using the API.
+
+It can also be used to connect an external BI tool directly to the database.
+
+Example with the Google Ads app SQL access:
+
+![SQL access](/about/images/googleads-sql-access.png)
+
+
+### Aug 2 - Relative time in user segments
+
+User segments can now be matched by relative time periods. This allows you to create segments based on the user's activity in the last X days, weeks, months, or years.
+
+A system task will automatically refresh the concerned user segments every 12 hours to keep them up to date.
+
+![Relative time](/about/images/segment-relative-time.png)
+
+
+### Jul 25 - Attribution report update
+
+The Attribution report has been updated to show the Acquisition and Retention metrics side by side.
+
+You can also filter the report by user segments to see the performance of your campaigns for specific groups of users.
+
+![Attribution report](/about/images/attribution-report.png)
+
+### Jul 7 - Google Ads Customer Match
+
+The Google Ads app now supports [Customer Match](https://support.google.com/google-ads/answer/6379332?hl=en) to target your users with personalized ads on Google Search, YouTube, and Gmail.
+
+This feature allows you to sync a Rimdian user segment with Google Ads.
+
+Users who join or leave the segment will be automatically added or removed from the Google Ads Customer Match audience.
+
+![Customer Match](/about/images/googleads-app.png)
+
+### Jun 28 - Affilae app
+
+A new Affilae app is available in the Console to connect your Affilae account to the platform.
+
+This app allows you to collect the Affilae clicks (aecid) from your web traffic, and push the attributed conversions to the Affilae API.
+
+![Affilae](/about/images/affilae-app.png)
+
+### Jun 14 - Apps improvements
+
+Apps can now be upgraded by providing a new version in the app manifest. This allows you to release new features, bug fixes, and improvements to your app.
+
+The upgrade process takes care of saving the apps "custom tables" data before updating the database.
+
+Apps can also declare their own [Cube schemas](/apps-development/cube-schemas) to provide custom computed metrics and dimensions to the platform.
+
+### May 5 - WooCommerce app
+
+A new WooCommerce app is available in the Console to connect your WooCommerce store to the platform.
+
+This app allows you to import your orders, and customers and register webhooks to keep your data in sync.
+
+![Woo](/about/images/woo-app.png)
+
+### Apr 20 - Broadcast campaigns
+
+A new "Broadcast campaigns" section is available in the Console to send newsletters to your users.
+
+Each campaign can be sent to many Subscription Lists, and can be scheduled to be sent at a specific date & time.
+
+A/B testing is also available to test different email subjects, contents, and senders.
+
+Emails are sent through the SparkPost email provider (now Bird.com).
+
+![Campaign](/about/images/broadcast-campaign.png)
+
+### Apr 11 - Subscription lists
+
+A new "Subscription Lists" section is available beside the user Segments in the Console. This section allows you to manage your subscribers and to create custom lists to send your newsletters.
+
+Subscribers can be added to the lists by importing an existing user segment, by API and/or with [JS SDK](/integration/javascript-sdk) methods on your website.
+
+A double opt-in process is available to confirm the subscription of your users.
+
+![Email editor](/about/images/subscription-list.png)
+![Email editor](/about/images/import-segment-to-list.png)
+
+
+### Mar 26 - Email editor
+
+A new email editor is available to create email templates & your newsletters directly from the Console. This editor allows you to create beautiful emails with a simple drag-n-drop interface, and to preview them before sending.
+
+The email links are automatically tracked (utm_source / medium / content) according to your template settings. And an "open pixel" is also automatically added to your emails to track the open rate.
+
+The generated HTML code is backed by the [MJML framework](https://mjml.io/), and is fully compatible & responsive on all devices.
+
+![Email editor](/about/images/email-editor.png)
+![Email editor](/about/images/email-template.png)
+
+### Mar 19 - File manager
+
+A new file manager is available in the Console to upload your files (images, documents, etc.) directly from the Console.
+
+<Tip>These files will be served over a CDN and will be accessible from a subdomain of your website. Ie: `https://cdn.yourwebsite.com/image.jpg`</Tip>
+
+The file manager is the first step towards bigger Email Marketing features, to host your images (logo, products...).
+
+<Frame caption="File Manager">
+![File Manager](/about/images/file-manager.png)
+</Frame>
