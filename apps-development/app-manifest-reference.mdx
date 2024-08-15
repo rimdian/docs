@@ -58,8 +58,8 @@ iconType: duotone
     **Data hooks** - An array of data hooks that your app can listen to.See [Data hook properties](#data-hook) for more details.
 </ParamField>
 
-<ParamField path="sql_queries" type="array">
-    **SQL queries** - An array of predefined SQL queries that your app can perform. See [SQL query properties](#sql-query) for more details.
+<ParamField path="sql_access" type="object">
+    **SQL access** - An object containing your app's SQL access. See [SQL access properties](#sql-access) for more details.
 </ParamField>
 
 <ParamField path="extra_columns" type="array">
@@ -128,7 +128,17 @@ iconType: duotone
     **Action** - Only for `on_success` hooks. The action that the data hook should listen to. Values: `create`, `update`. For `kind == segment` values are `exit`, `enter`.
 </ParamField>
 
-## SQL query
+## SQL access
+
+<ParamField path="predefined_queries" type="array">
+    **Predefined queries** - An array of predefined SQL queries that your app can perform. See [SQL query properties](#sql-query) for more details.
+</ParamField>
+
+<ParamField path="tables_permissions" type="array">
+    **Tables permissions** - An array of tables that your app can access. See [SQL tables permissions](#sql-tables-permissions) for more details.
+</ParamField>
+
+### SQL predefined-query
 
 <ParamField path="id" type="string">
     **SQL query ID** - The ID of the SQL query, prefixed by your app ID. Example: `appx_myapp123_sql_query_1`.
@@ -152,6 +162,20 @@ iconType: duotone
 
 <ParamField path="test_args" type="array">
     **Test arguments** - An array of test arguments for the SQL query. Example: `["user_123"]`.
+</ParamField>
+
+### SQL tables permissions
+
+<ParamField path="table" type="string">
+    **Table** - The name of the table. Values: `user`, `segment`, `order`, `order_item`, `cart`, `cart_item`, `session`, `custom_event`, `pageview`, `appx_myapp_custom_table`...
+</ParamField>
+
+<ParamField path="read" type="boolean">
+    **Read** - Whether the app can read the table. Example: `true`.
+</ParamField>
+
+<ParamField path="write" type="boolean">
+    **Write** - Whether the app can write to the table. Example: `true`.
 </ParamField>
 
 ## Extra column
@@ -334,23 +358,30 @@ Please refer to the [Cube schemas documentation](/apps-development/cube-schemas)
       ]
     }
   ],
-  "sql_queries": [
-    {
-      "id": "appx_default_sql_query_1",
-      "type": "select",
-      "name": "SQL query 1",
-      "description": "Example of predefined SQL query. For security reasons, use predefined queries to just fetch the data you needs",
-      "query": "SELECT * FROM `user` WHERE external_id = ?",
-      "test_args": ["auth-54-22"]
-    },
-    {
-      "id": "appx_default_full_access",
-      "type": "select",
-      "name": "Full access",
-      "description": "The app needs full 'read access' to the tables in order to do... (name the reason).",
-      "query": "*"
-    }
-  ],
+  "sql_access": {
+    "predefined_queries": [
+      {
+        "id": "appx_default_sql_query_1",
+        "type": "select",
+        "name": "SQL query 1",
+        "description": "Example of predefined SQL query. For security reasons, use predefined queries to just fetch the data you needs",
+        "query": "SELECT * FROM `user` WHERE external_id = ?",
+        "test_args": ["auth-54-22"]
+      }
+    ],
+    "tables_permissions": [
+      {
+        "table": "user",
+        "read": true,
+        "write": false
+      },
+      {
+        "table": "session",
+        "read": true,
+        "write": false
+      }
+    ]
+  },
   "extra_columns": [
     {
       "kind": "user",

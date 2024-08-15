@@ -1,0 +1,80 @@
+---
+title: 'App SQL Access'
+sidebarTitle: 'SQL Access'
+description: ''
+icon: magnifying-glass
+iconType: duotone
+---
+
+Apps can register SQL access to be used by the app. This is useful for apps that need to query the database for data.
+
+There are 2 types of SQL access:
+
+1. **Pre-defined SQL queries**: These are predefined SQL `SELECT` queries that are declared in the app manifest. The app can then execute these queries with the API.
+2. **Tables permissions**: This is a special type of SQL access that allows the app to connect directly to the database with the MySQL protocol and access specific tables with read / write permissions. This should be used with caution and only when necessary. It is recommended to use this access for apps who need to import their data (Google Ads clicks etc...).
+
+## Pre-defined SQL queries
+
+Declaring your queries in the app [manifest.json](/apps-development/app-manifest-reference) allows the app to be more secure and performant. The app can also be more easily audited for security and performance.
+
+```json
+...
+  "sql_access": {
+    "predefined_queries": [
+      {
+        "id": "appx_default_sql_query_1",
+        "type": "select",
+        "name": "SQL query 1",
+        "description": "Example of predefined SQL query. For security reasons, use predefined queries to just fetch the data you needs",
+        "query": "SELECT * FROM `user` WHERE external_id = ?",
+        "test_args": ["auth-54-22"]
+      }
+      ...
+    ],
+  }
+  ...
+```
+
+### Usage in the app
+
+You can [execute a pre-defined SQL query](/api-references/server/app-exec-query) by calling the `POST /api/app.execQuery` API endpoint with:
+
+```json
+{
+    "workspace_id": "acme_workspace1",
+    "app_id": "app_myapp1",
+    "query_id": "app_myapp1_get_user",
+    "args": ["user_123"]
+}
+```
+
+## Tables permissions
+
+By default, all the custom app tables declared in the app manifest.json are available with read & write permissions `SELECT`, `INSERT`, `UPDATE`, `DELETE`.
+
+<Tip>Rimdian's tables (user, session, pageview...) are only available with read (`SELECT`) permissions.</Tip>
+
+```json
+...
+  "sql_access": {
+    "tables_permissions": [
+      {
+        "table": "user",
+        "read": true
+      },
+      {
+        "table": "session",
+        "read": true
+      }
+    ]
+  }
+  ...
+```
+
+### SQL credentials
+
+When the app has tables permissions, the app can connect to the database with the MySQL protocol.
+
+The SQL credentials (host, port, user, password, database) are provided by the API by calling the endpoint:
+
+`GET htttps://API_ENDPOINT/api/app.get?workspace_id=acme_workspace1&id=appx_myapp`

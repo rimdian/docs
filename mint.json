@@ -91,7 +91,7 @@
         "apps-development/private-app-installation",
         "apps-development/tasks",
         "apps-development/data-hooks",
-        "apps-development/sql-queries",
+        "apps-development/sql-access",
         "apps-development/extra-columns",
         "apps-development/tables",
         "apps-development/cube-schemas",
